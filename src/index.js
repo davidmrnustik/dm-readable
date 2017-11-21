@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import ReadableApp from './components/App';
 import './assets/css/bootstrap.min.css';
+import { Provider } from 'react-redux';
+import { store } from './store/configureStore';
+import { fetchCategories } from './actions';
 
 class App extends Component {
   render() {
@@ -13,7 +16,11 @@ class App extends Component {
   }
 };
 
+store.dispatch(fetchCategories())
+
 ReactDOM.render(
-  <App />,
+  <Provider store={store}>
+    <App />
+  </Provider>,
   document.getElementById('root')
 );
