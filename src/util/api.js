@@ -1,6 +1,6 @@
 import { API_URL, API_HEADERS } from '../constants';
 
-export const fetchCategories = url => fetch(
+export const fetchData = url => fetch(
   `${API_URL}/${url}`,
   API_HEADERS
 );

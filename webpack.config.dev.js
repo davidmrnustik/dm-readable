@@ -52,5 +52,8 @@ module.exports = {
     extractCSS,
     HtmlWebpackPluginConfig
   ],
-  devServer: { inline: true }
+  devServer: {
+    historyApiFallback: true
+  },
+  devtool: 'inline-source-map'
 }

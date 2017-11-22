@@ -1,5 +1,12 @@
 import { combineReducers } from 'redux';
-import { REQUEST_CATEGORIES, RECEIVE_CATEGORIES } from '../constants';
+import {
+  REQUEST_CATEGORIES,
+  RECEIVE_CATEGORIES,
+  REQUEST_POSTS,
+  RECEIVE_POSTS,
+  REQUEST_POSTS_BY_CATEGORY,
+  RECEIVE_POSTS_BY_CATEGORY
+} from '../constants';
 
 function categories(state = {
   isFetching: false,
@@ -23,6 +30,52 @@ function categories(state = {
   }
 }
 
+function posts(state = {
+  isFetching: false,
+  items: []
+}, action
+){
+  const { posts } = action;
+
+  switch(action.type) {
+    case REQUEST_POSTS :
+      return Object.assign({}, state, {
+        isFetching: true
+      });
+    case RECEIVE_POSTS :
+      return Object.assign({}, state, {
+        isFetching: false,
+        items: posts
+      });
+    default:
+      return state;
+  }
+}
+
+function postsByCategory(state = {
+  isFetching: false,
+  items: []
+}, action
+){
+  const { posts } = action;
+
+  switch(action.type) {
+    case REQUEST_POSTS_BY_CATEGORY :
+      return Object.assign({}, state, {
+        isFetching: true
+      });
+    case RECEIVE_POSTS_BY_CATEGORY :
+      return Object.assign({}, state, {
+        isFetching: false,
+        items: posts
+      });
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
-  categories
+  categories,
+  posts,
+  postsByCategory
 });
