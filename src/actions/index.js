@@ -3,6 +3,8 @@ import {
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
   RECEIVE_POSTS,
+  REQUEST_POST_DETAIL,
+  RECEIVE_POST_DETAIL,
   REQUEST_POSTS_BY_CATEGORY,
   RECEIVE_POSTS_BY_CATEGORY
 } from '../constants';
@@ -53,6 +55,29 @@ export const fetchPosts = posts => dispatch => (
       error => console.log('An error occured', error)
     )
     .then(json => dispatch(receivePosts(json)))
+);
+
+function requestPostDetail (postID) {
+  return {
+    type: REQUEST_POST_DETAIL,
+    postID
+  }
+}
+function receivePostDetail (postID) {
+  return {
+    type: RECEIVE_POST_DETAIL,
+    postID
+  }
+}
+export const fetchPostDetail = postID => dispatch => (
+  dispatch(requestPostDetail(postID)),
+  APIUtil
+    .fetchData(`posts/${postID}`)
+    .then(
+      response => response.json(),
+      error => console.log('An error occured', error)
+    )
+    .then(json => dispatch(receivePostDetail(json)))
 );
 
 function requestPostsByCategory (category) {

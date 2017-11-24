@@ -4,6 +4,8 @@ import {
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
   RECEIVE_POSTS,
+  REQUEST_POST_DETAIL,
+  RECEIVE_POST_DETAIL,
   REQUEST_POSTS_BY_CATEGORY,
   RECEIVE_POSTS_BY_CATEGORY
 } from '../constants';
@@ -52,6 +54,28 @@ function posts(state = {
   }
 }
 
+function postDetail(state = {
+  isFetching: false,
+  item: {}
+}, action
+){
+  const { postID } = action;
+
+  switch(action.type) {
+    case REQUEST_POST_DETAIL :
+      return Object.assign({}, state, {
+        isFetching: true
+      });
+    case RECEIVE_POST_DETAIL :
+      return Object.assign({}, state, {
+        isFetching: false,
+        item: postID
+      });
+    default:
+      return state;
+  }
+}
+
 function postsByCategory(state = {
   isFetching: false,
   items: []
@@ -77,5 +101,6 @@ function postsByCategory(state = {
 export default combineReducers({
   categories,
   posts,
+  postDetail,
   postsByCategory
 });

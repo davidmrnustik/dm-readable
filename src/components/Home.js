@@ -1,19 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Post from './Post';
+import { Route } from 'react-router-dom';
 
 const Home = (props) => {
   return (
     <div>
-      <h2>This is Home</h2>
+      <Route path={props.match.url} render={() => (
+        <h2>This is Home</h2>
+      )}/>
       <div className='posts'>
         {!props.isFetching && props.posts.map(post => (
-          <div className='post' key={post.id} style={{ marginBottom: 10 }}>
-            <div className='post-title'><strong>{post.title}</strong></div>
-            <span className='post-author'>{post.author}</span>
-            <div className='post-comments'>Comments: {post.commentCount}</div>
-            <div className='post-voteScore'>Votes: {post.voteScore}</div>
-          </div>
+          <Route
+            key={post.id}
+            exact
+            path={`${props.match.url}`}
+            render={() => (
+              <Post {...post} />
+            )}
+          />
         ))}
       </div>
     </div>
