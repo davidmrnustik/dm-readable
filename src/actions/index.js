@@ -2,11 +2,7 @@ import {
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
-  RECEIVE_POSTS,
-  REQUEST_POST_DETAIL,
-  RECEIVE_POST_DETAIL,
-  REQUEST_POSTS_BY_CATEGORY,
-  RECEIVE_POSTS_BY_CATEGORY
+  RECEIVE_POSTS
 } from '../constants';
 import * as APIUtil from '../util/api';
 import fetch from 'isomorphic-fetch';
@@ -55,50 +51,4 @@ export const fetchPosts = posts => dispatch => (
       error => console.log('An error occured', error)
     )
     .then(json => dispatch(receivePosts(json)))
-);
-
-function requestPostDetail (postID) {
-  return {
-    type: REQUEST_POST_DETAIL,
-    postID
-  }
-}
-function receivePostDetail (postID) {
-  return {
-    type: RECEIVE_POST_DETAIL,
-    postID
-  }
-}
-export const fetchPostDetail = postID => dispatch => (
-  dispatch(requestPostDetail(postID)),
-  APIUtil
-    .fetchData(`posts/${postID}`)
-    .then(
-      response => response.json(),
-      error => console.log('An error occured', error)
-    )
-    .then(json => dispatch(receivePostDetail(json)))
-);
-
-function requestPostsByCategory (category) {
-  return {
-    type: REQUEST_POSTS_BY_CATEGORY,
-    category
-  }
-}
-function receivePostsByCategory (posts) {
-  return {
-    type: RECEIVE_POSTS_BY_CATEGORY,
-    posts
-  }
-}
-export const fetchPostsByCategory = category => dispatch => (
-  dispatch(requestPostsByCategory(category)),
-  APIUtil
-    .fetchData(`${category}/posts`)
-    .then(
-      response => response.json(),
-      error => console.log('An error occured', error)
-    )
-    .then(json => dispatch(receivePostsByCategory(json)))
 );

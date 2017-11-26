@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import Header from './Header';
 import Home from './Home';
 import CategoryList from './CategoryList';
-import PostDetail from './PostDetail';
+import Post from './Post';
 
 class ReadableApp extends Component {
   render() {
@@ -14,7 +14,7 @@ class ReadableApp extends Component {
           <Header />
           <Route exact path='/' component={Home} />
           <Route exact path='/:category' component={CategoryList} />
-          <Route path='/:category/:post_id' component={PostDetail} />
+          <Route path='/:category/:post_id' component={Post} />
         </div>
       </Router>
     )

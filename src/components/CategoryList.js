@@ -1,32 +1,25 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Category from './Category';
 
 const CategoryList = (props) => {
-  const title = props.categories.reduce((final, current) => {
-    final = current.path === props.match.params.category
-    ? current.path
-    : final
-    return final;
-  }, '');
-
   return (
     <div className='category-list'>
-      <Category title={title} />
+      <Category id={props.category.path} />
     </div>
   )
 }
 
 CategoryList.propTypes = {
-  categories: PropTypes.array.isRequired,
+  category: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired
 }
 
-function mapStateToProps({ categories }) {
+function mapStateToProps({ categories }, ownProps) {
   return {
-    categories: categories.items,
+    category: categories.items.filter(category => category.path === ownProps.match.params.category)[0],
     isFetching: categories.isFetching
   }
 }
