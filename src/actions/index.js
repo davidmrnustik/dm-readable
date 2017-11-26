@@ -5,12 +5,10 @@ import {
   RECEIVE_POSTS
 } from '../constants';
 import * as APIUtil from '../util/api';
-import fetch from 'isomorphic-fetch';
 
-function requestCategories (categories) {
+function requestCategories () {
   return {
-    type: REQUEST_CATEGORIES,
-    categories
+    type: REQUEST_CATEGORIES
   }
 }
 function receiveCategories (categories) {
@@ -19,8 +17,8 @@ function receiveCategories (categories) {
     categories
   }
 }
-export const fetchCategories = categories => dispatch => (
-  dispatch(requestCategories(categories)),
+export const fetchCategories = () => dispatch => (
+  dispatch(requestCategories()),
   APIUtil
     .fetchData('categories')
     .then(
@@ -30,10 +28,9 @@ export const fetchCategories = categories => dispatch => (
     .then(json => dispatch(receiveCategories(json)))
 );
 
-function requestPosts (posts) {
+function requestPosts () {
   return {
-    type: REQUEST_POSTS,
-    posts
+    type: REQUEST_POSTS
   }
 }
 function receivePosts (posts) {
@@ -42,8 +39,8 @@ function receivePosts (posts) {
     posts
   }
 }
-export const fetchPosts = posts => dispatch => (
-  dispatch(requestPosts(posts)),
+export const fetchPosts = () => dispatch => (
+  dispatch(requestPosts()),
   APIUtil
     .fetchData('posts')
     .then(
