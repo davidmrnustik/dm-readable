@@ -6,11 +6,12 @@ import {
   RECEIVE_POSTS
 } from '../constants';
 
-function categories(state = {
+const initialState = {
   isFetching: false,
   items: []
-}, action
-){
+}
+
+function categories(state = initialState, action){
   const { categories } = action;
 
   switch(action.type) {
@@ -28,11 +29,7 @@ function categories(state = {
   }
 }
 
-function posts(state = {
-  isFetching: false,
-  items: []
-}, action
-){
+function posts(state = initialState, action){
   const { posts } = action;
 
   switch(action.type) {

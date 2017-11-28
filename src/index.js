@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import ReadableApp from './components/App';
 import './assets/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
@@ -21,7 +22,9 @@ store.dispatch(fetchPosts());
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Router>
+      <App />
+    </Router>
   </Provider>,
   document.getElementById('root')
 );

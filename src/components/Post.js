@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { API_URL, API_HEADERS } from '../constants';
 import * as APIUtil from '../util/api';
+import CommentList from './CommentList';
+import Loading from './Loading';
 
 class Post extends Component {
   constructor(props) {
@@ -30,27 +31,22 @@ class Post extends Component {
   }
 
   render() {
-    const { post } = this.props;
+    const { post, postIsFetching } = this.props;
     const { comments, commentIsLoading } = this.state;
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
-        <h2 className='post-title'>{post.title}</h2>
-        <span className='post-author'>{post.author}</span>
-        <div className='post-comments'>Comments: {post.commentCount}</div>
-        <div className='post-voteScore'>Votes: {post.voteScore}</div>
-        <hr/>
-        <h4>Comments</h4>
-        <div className='comments'>
-          {!commentIsLoading && comments.map(comment => (
-            <div className='comment' key={comment.id}>
-              <div className='comment-author'><em>{comment.author}</em></div>
-              <div className='comment-body'>{comment.body}</div>
-              <div> ------ </div>
-            </div>
-          ))}
-          {comments.length === 0 && <p>There are no comments for this Post.</p>}
-        </div>
+        {postIsFetching ? <Loading/> : (
+          <div>
+            <h2 className='post-title'>{post.title}</h2>
+            <span className='post-author'>{post.author}</span>
+            <div className='post-comments'>Comments: {post.commentCount}</div>
+            <div className='post-voteScore'>Votes: {post.voteScore}</div>
+            <hr/>
+            <h4>Comments</h4>
+            {commentIsLoading ? <Loading/> : <CommentList comments={comments}/>}
+          </div>
+        )}
       </div>
     )
   }
@@ -61,7 +57,7 @@ Post.propTypes = {
   postIsFetching: PropTypes.bool.isRequired
 }
 
-function mapStateToProps({ posts, comments }, ownProps){
+function mapStateToProps({ posts }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
   return {
     post: postID && posts.items.filter(post => post.id === postID)[0],

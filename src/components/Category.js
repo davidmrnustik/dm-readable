@@ -1,19 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import PostList from './PostList';
+import Loading from './Loading';
 
-const Category = (props) => {
+const Category = ({ match, category, isFetching }) => {
   return (
-    <div>
-      <h2>This is {props.id}</h2>
-      <PostList category={props.id} />
+    <div className='category'>
+      <h2>This is {category.path}</h2>
+      {isFetching ? <Loading/> : <PostList category={category.path} />}
     </div>
   )
 }
 
 Category.propTypes = {
-  id: PropTypes.string.isRequired
+  category: PropTypes.object.isRequired,
+  isFetching: PropTypes.bool.isRequired
 }
 
-export default Category;
+function mapStateToProps({ categories }, ownProps) {
+  return {
+    category: categories.items.filter(category => category.path === ownProps.match.params.category)[0],
+    isFetching: categories.isFetching
+  }
+}
+
+export default connect(mapStateToProps)(Category);

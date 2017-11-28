@@ -2,18 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import Loading from './Loading';
 
-const PostList = (props) => {
+const PostList = ({ posts, isFetching }) => {
   return (
     <div className='post-list'>
-      {!props.isFetching && props.posts.map(post => (
+      {!isFetching && posts.map(post => (
         <p key={post.id}>
           <Link to={`${post.category}/${post.id}`}>
             <strong>{post.title}</strong>
           </Link>
         </p>
       ))}
-      {props.posts.length === 0 && <p>There are no posts for these category.</p>}
+      {isFetching ? <Loading/> : posts.length === 0 && <p>There are no posts for these category.</p>}
     </div>
   )
 }
