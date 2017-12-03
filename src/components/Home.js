@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PostList from './PostList';
 
 const Home = () => {
@@ -10,4 +11,4 @@ const Home = () => {
   )
 }
 
-export default Home;
+export default connect()(Home);

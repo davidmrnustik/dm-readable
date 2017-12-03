@@ -3,7 +3,8 @@ import {
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
-  RECEIVE_POSTS
+  RECEIVE_POSTS,
+  ADD_POST
 } from '../constants';
 
 const initialState = {
@@ -30,18 +31,28 @@ function categories(state = initialState, action){
 }
 
 function posts(state = initialState, action){
-  const { posts } = action;
+  const { posts, post } = action;
 
   switch(action.type) {
     case REQUEST_POSTS :
       return Object.assign({}, state, {
         isFetching: true
       });
+
     case RECEIVE_POSTS :
       return Object.assign({}, state, {
         isFetching: false,
         items: posts
       });
+
+    case ADD_POST :
+      return Object.assign({}, state, {
+        items: [
+          ...state.items,
+          post
+        ]
+      })
+
     default:
       return state;
   }

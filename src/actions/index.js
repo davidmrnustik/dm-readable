@@ -1,10 +1,15 @@
 import {
+  API_URL,
+  API_POST_HEADERS,
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
-  RECEIVE_POSTS
+  RECEIVE_POSTS,
+  ADD_POST,
+  UPDATE_POST
 } from '../constants';
 import * as APIUtil from '../util/api';
+import rp from 'request-promise';
 
 function requestCategories () {
   return {
@@ -49,3 +54,36 @@ export const fetchPosts = () => dispatch => (
     )
     .then(json => dispatch(receivePosts(json)))
 );
+
+const addPost = post => {
+  return {
+    type: ADD_POST,
+    post
+  }
+};
+
+const updatePost = post => {
+  return {
+    type: UPDATE_POST,
+    post
+  }
+};
+
+export function savePost(post) {
+  const options = {
+    method: 'POST',
+    uri: `${API_URL}/posts`,
+    body: post,
+    json: true,
+    headers: API_POST_HEADERS
+  }
+  return function(dispatch, getState) {
+    return rp(options)
+      .then(body => {
+        dispatch(addPost(body))
+      })
+      .catch(error => {
+        throw new Error(error);
+      });
+  }
+}

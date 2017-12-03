@@ -55,6 +55,10 @@ module.exports = {
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         loader: 'file-loader?name=/fonts/[name].[ext]'
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   },
@@ -64,5 +68,11 @@ module.exports = {
     HtmlWebpackPluginConfig,
     new webpack.DefinePlugin(GLOBALS),
     UglifyJSPluginConfig
-  ]
+  ],
+  node: {
+    console: true,
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 }

@@ -6,13 +6,14 @@ import CommentList from './CommentList';
 import Loading from './Loading';
 
 class Post extends Component {
-  constructor(props) {
-    super(props);
-      
-    this.state = {
-      comments: [],
-      commentIsLoading: false
-    }
+  static propTypes = {
+    post: PropTypes.any,
+    postIsFetching: PropTypes.bool.isRequired
+  }
+  
+  state = {
+    comments: [],
+    commentIsLoading: false
   }
 
   componentDidMount() {
@@ -50,11 +51,6 @@ class Post extends Component {
       </div>
     )
   }
-}
-
-Post.propTypes = {
-  post: PropTypes.any,
-  postIsFetching: PropTypes.bool.isRequired
 }
 
 function mapStateToProps({ posts }, ownProps){

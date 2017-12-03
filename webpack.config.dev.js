@@ -45,6 +45,10 @@ module.exports = {
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         loader: 'file-loader?name=/fonts/[name].[ext]'
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   },
@@ -55,5 +59,11 @@ module.exports = {
   devServer: {
     historyApiFallback: true
   },
-  devtool: 'inline-source-map'
+  devtool: 'inline-source-map',
+  node: {
+    console: true,
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 }
