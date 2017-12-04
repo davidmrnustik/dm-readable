@@ -8,10 +8,10 @@ export const fetchData = url => fetch(
   }
 );
 
-export const postData = (url, body) => fetch(
+export const handleData = (method, url, body) => fetch(
   `${API_URL}/${url}`,
   {
-    method: 'POST',
+    method,
     headers: API_HEADERS,
     body
   }

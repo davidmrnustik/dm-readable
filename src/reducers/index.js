@@ -4,7 +4,8 @@ import {
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
   RECEIVE_POSTS,
-  ADD_POST
+  ADD_POST,
+  UPDATE_POST
 } from '../constants';
 
 const initialState = {
@@ -51,7 +52,15 @@ function posts(state = initialState, action){
           ...state.items,
           post
         ]
-      })
+      });
+
+    case UPDATE_POST :
+      return Object.assign({}, state, {
+        items: [
+          ...state.items.filter(item => item.id !== action.post.id),
+          post
+        ]
+      });
 
     default:
       return state;

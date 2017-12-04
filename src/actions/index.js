@@ -70,6 +70,24 @@ const updatePost = post => {
   }
 };
 
+export function modifyPost(post) {
+  const updatedPost = Object.assign({}, post, {
+    timestamp: +new Date()
+  });
+  
+  return function(dispatch) {
+    return APIUtil
+      .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
+      .then(
+        response => response.json(),
+        error => console.log('An error occured', error)
+      )
+      .then(() => {
+        dispatch(updatePost(updatedPost));
+      })
+  }
+}
+
 export function savePost(post) {
   const updatedPost = Object.assign({}, post, {
     id: getIDToken(),
@@ -78,13 +96,13 @@ export function savePost(post) {
 
   return function(dispatch) {
     return APIUtil
-      .postData('posts', JSON.stringify(updatedPost))
-        .then(
-          response => response.json(),
-          error => console.log('An error occured', error)
-        )
-        .then(() => {
-          dispatch(addPost(updatedPost));
-        })
+      .handleData('POST', 'posts', JSON.stringify(updatedPost))
+      .then(
+        response => response.json(),
+        error => console.log('An error occured', error)
+      )
+      .then(() => {
+        dispatch(addPost(updatedPost));
+      })
   }
 }

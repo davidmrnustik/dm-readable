@@ -6,14 +6,7 @@ import Loading from './Loading';
 import Modal from 'react-modal';
 import { savePost } from '../actions';
 import PostForm from './PostForm';
-
-const styles = {
-  modalClose: {
-    position: 'absolute',
-    top: 20,
-    right: 20
-  }
-}
+import { styles } from './common/styles';
 
 class PostList extends Component {
   static propTypes = {
@@ -57,7 +50,6 @@ class PostList extends Component {
   onSubmitNewPost = event => {
     event.preventDefault();
     this.props.saveNewPost(this.state.post);
-    this.setState({ post: this.props.post});
     this.closeNewPostModal();
   }
 
@@ -86,6 +78,7 @@ class PostList extends Component {
           
           <PostForm
             onSubmit={this.onSubmitNewPost}
+            modify={false}
             onChange={this.onChangeFormControl}
             category={category}
             categories={categories}

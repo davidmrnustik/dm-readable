@@ -9,7 +9,7 @@ const styles = {
   }
 }
 
-const PostForm = ({ onSubmit, onChange, categories, post, category }) => {
+const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
@@ -20,31 +20,35 @@ const PostForm = ({ onSubmit, onChange, categories, post, category }) => {
           onChange={onChange}
           placeholder='Post Title'/>
       </div>
-      <div>
-        <select
-          name='category'
-          value={category}
-          onChange={onChange}
-        >
-          <option value=''>Select category</option>
-          {categories.map(category => (
-            <option
-              value={category.path}
-              key={category.path}
+      {!modify && (
+        <div>
+          <div>
+            <select
+              name='category'
+              value={category}
+              onChange={onChange}
             >
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <input
-          type='text'
-          name='author'
-          value={post.author}
-          onChange={onChange}
-          placeholder='Post Author'/>
-      </div>
+              <option value=''>Select category</option>
+              {categories.map(category => (
+                <option
+                  value={category.path}
+                  key={category.path}
+                >
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <input
+              type='text'
+              name='author'
+              value={post.author}
+              onChange={onChange}
+              placeholder='Post Author'/>
+          </div>
+        </div>
+      )}
       <div>
         <textarea
           name='body'
@@ -57,7 +61,7 @@ const PostForm = ({ onSubmit, onChange, categories, post, category }) => {
         <button
           type='submit'
         >
-          Add Post
+          {modify ? 'Edit Post' : 'Add Post'}
         </button>
       </div>
     </form>
@@ -67,8 +71,9 @@ const PostForm = ({ onSubmit, onChange, categories, post, category }) => {
 PostForm.postTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  modify: PropTypes.bool,
   category: PropTypes.string,
-  categories: PropTypes.array.isRequired,
+  categories: PropTypes.array,
   post: PropTypes.object.isRequired
 }
 
