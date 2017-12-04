@@ -5,12 +5,7 @@ import { Link } from 'react-router-dom';
 import Loading from './Loading';
 import Modal from 'react-modal';
 import { savePost } from '../actions';
-import randtoken from 'rand-token';
 import PostForm from './PostForm';
-
-randtoken.generator({
-  chars: 'a-z'
-});
 
 const styles = {
   modalClose: {
@@ -32,6 +27,12 @@ class PostList extends Component {
   state = {
     newPostModalOpen: false,
     post: Object.assign({}, this.props.post)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.category !== this.props.category) {
+      this.setState({ post: Object.assign({}, this.props.post, { category: nextProps.category })})
+    }
   }
 
   openNewPostModal = () => {
@@ -61,7 +62,7 @@ class PostList extends Component {
   }
 
   render() {
-    const { posts, categories, isFetching } = this.props;
+    const { posts, categories, isFetching, category } = this.props;
     const { newPostModalOpen, post } = this.state;
 
     return (
@@ -86,6 +87,7 @@ class PostList extends Component {
           <PostForm
             onSubmit={this.onSubmitNewPost}
             onChange={this.onChangeFormControl}
+            category={category}
             categories={categories}
             post={post}/>
 
@@ -103,12 +105,12 @@ class PostList extends Component {
 
 function mapStateToProps({ posts, categories }, ownProps) {
   const post = {
-    id: randtoken.generate(21).toLowerCase(),
-    timestamp: +new Date(),
+    id: '',
+    timestamp: 0,
     title: '',
     body: '',
     author: '',
-    category: '',
+    category: ownProps.category,
     voteScore: 0,
     deleted: false,
     commentCount: 0

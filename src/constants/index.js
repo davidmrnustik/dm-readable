@@ -1,11 +1,7 @@
-const API_AUTHORIZATION = 'readable-project-davidmrnustik';
-
 export const API_URL = 'http://localhost:3001';
-export const API_GET_HEADERS = {
-  headers: { 'Authorization': API_AUTHORIZATION }
-};
-export const API_POST_HEADERS = {
-  'Authorization': API_AUTHORIZATION
+export const API_HEADERS = {
+  'Authorization': 'readable-project-davidmrnustik',
+  'Content-Type': 'application/json'
 };
 
 export const REQUEST_CATEGORIES = 'REQUEST_CATEGORIES';

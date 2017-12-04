@@ -1,6 +1,6 @@
 import {
   API_URL,
-  API_POST_HEADERS,
+  API_HEADERS,
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
@@ -9,7 +9,8 @@ import {
   UPDATE_POST
 } from '../constants';
 import * as APIUtil from '../util/api';
-import rp from 'request-promise';
+import { getIDToken } from '../util/token';
+import fetch from 'isomorphic-fetch';
 
 function requestCategories () {
   return {
@@ -70,20 +71,20 @@ const updatePost = post => {
 };
 
 export function savePost(post) {
-  const options = {
-    method: 'POST',
-    uri: `${API_URL}/posts`,
-    body: post,
-    json: true,
-    headers: API_POST_HEADERS
-  }
-  return function(dispatch, getState) {
-    return rp(options)
-      .then(body => {
-        dispatch(addPost(body))
-      })
-      .catch(error => {
-        throw new Error(error);
-      });
+  const updatedPost = Object.assign({}, post, {
+    id: getIDToken(),
+    timestamp: +new Date()
+  });
+
+  return function(dispatch) {
+    return APIUtil
+      .postData('posts', JSON.stringify(updatedPost))
+        .then(
+          response => response.json(),
+          error => console.log('An error occured', error)
+        )
+        .then(() => {
+          dispatch(addPost(updatedPost));
+        })
   }
 }

@@ -9,7 +9,7 @@ const styles = {
   }
 }
 
-const PostForm = ({ onSubmit, onChange, categories, post }) => {
+const PostForm = ({ onSubmit, onChange, categories, post, category }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
@@ -23,6 +23,7 @@ const PostForm = ({ onSubmit, onChange, categories, post }) => {
       <div>
         <select
           name='category'
+          value={category}
           onChange={onChange}
         >
           <option value=''>Select category</option>
@@ -66,6 +67,7 @@ const PostForm = ({ onSubmit, onChange, categories, post }) => {
 PostForm.postTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  category: PropTypes.string,
   categories: PropTypes.array.isRequired,
   post: PropTypes.object.isRequired
 }
