@@ -8,6 +8,7 @@ import Loading from './Loading';
 import { modifyPost } from '../actions';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
+import PostDetail from './PostDetail';
 
 class Post extends Component {
   static propTypes = {
@@ -75,15 +76,11 @@ class Post extends Component {
     return (
       <div className='post' style={{ marginBottom: 10 }}>
         {postIsFetching ? <Loading/> : (
-          <div>
-            <h2 className='post-title'>{post.title}</h2>
-            <span className='post-author'>{post.author}</span>
-            <div className='post-category'>Category: {post.category}</div>
-            <div className='post-comments'>Comments: {post.commentCount}</div>
-            <div className='post-voteScore'>Votes: {post.voteScore}</div>
-            <button onClick={() => this.openModifyPostModal()}>Edit</button>
-            <hr/>
-            <p>{post.body}</p>
+          <div className='post-container'>
+            <PostDetail
+              post={post}
+              onClick={() => this.openModifyPostModal()}
+            />
             <hr/>
             <h4>Comments</h4>
             {commentIsLoading ? <Loading/> : <CommentList comments={comments}/>}

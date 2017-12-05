@@ -1,6 +1,4 @@
 import {
-  API_URL,
-  API_HEADERS,
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
@@ -10,7 +8,6 @@ import {
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
-import fetch from 'isomorphic-fetch';
 
 function requestCategories () {
   return {

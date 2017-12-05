@@ -28,6 +28,11 @@ class PostList extends Component {
     }
   }
 
+  // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
+  componentWillMount() {
+    Modal.setAppElement('body');
+  }
+
   openNewPostModal = () => {
     this.setState(() => ({
       newPostModalOpen: true

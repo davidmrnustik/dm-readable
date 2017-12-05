@@ -57,7 +57,7 @@ function posts(state = initialState, action){
     case UPDATE_POST :
       return Object.assign({}, state, {
         items: [
-          ...state.items.filter(item => item.id !== action.post.id),
+          ...state.items.filter(item => item.id !== post.id),
           post
         ]
       });
