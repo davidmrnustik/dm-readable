@@ -5,7 +5,8 @@ import ReadableApp from './components/App';
 import './assets/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
 import { store } from './store/configureStore';
-import { fetchCategories, fetchPosts } from './actions';
+import { fetchPosts } from './actions/posts';
+import { fetchCategories } from './actions/categories';
 
 class App extends Component {
   render() {

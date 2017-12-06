@@ -5,7 +5,7 @@ import * as APIUtil from '../util/api';
 import CommentList from './CommentList';
 import Modal from 'react-modal';
 import Loading from './Loading';
-import { modifyPost } from '../actions';
+import { modifyPost } from '../actions/posts';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
@@ -17,31 +17,14 @@ class Post extends Component {
   }
 
   state = {
-    comments: [],
-    statePost: Object.assign({}, this.props.post),
-    commentIsLoading: false,
+    post: Object.assign({}, this.props.post),
     modifyPostModal: false
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.post.timestamp !== this.props.post.timestamp) {
-      this.setState({ statePost: Object.assign({}, nextProps.post)})
+      this.setState({ post: Object.assign({}, nextProps.post)})
     }
-  }
-
-  componentDidMount() {
-    this.setState({ commentIsLoading: true });
-    APIUtil.fetchData(`posts/${this.props.post.id}/comments`)
-      .then(
-        response => response.json(),
-        error => console.log('An error occured', error)
-      )
-      .then(comments => (
-        this.setState({
-          comments,
-          commentIsLoading: false
-        })
-      ))
   }
 
   openModifyPostModal = () => {
@@ -58,20 +41,20 @@ class Post extends Component {
 
   onChangeFormControl = event => {
     const field = event.target.name;
-    let statePost = Object.assign({}, this.state.statePost);
-    statePost[field] = event.target.value;
-    return this.setState({ statePost });
+    let post = Object.assign({}, this.state.post);
+    post[field] = event.target.value;
+    return this.setState({ post });
   }
 
   onSubmitModifyPost = event => {
     event.preventDefault();
-    this.props.modifyPost(this.state.statePost);
+    this.props.modifyPost(this.state.post);
     this.closeModifyPostModal();
   }
 
   render() {
     const { post, postIsFetching } = this.props;
-    const { comments, commentIsLoading, modifyPostModal, statePost } = this.state;
+    const { modifyPostModal } = this.state;
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
@@ -83,7 +66,7 @@ class Post extends Component {
             />
             <hr/>
             <h4>Comments</h4>
-            {commentIsLoading ? <Loading/> : <CommentList comments={comments}/>}
+            <CommentList post={post.id} />
 
             <Modal
               isOpen={modifyPostModal}
@@ -95,7 +78,7 @@ class Post extends Component {
                 modify={true}
                 onChange={this.onChangeFormControl}
                 category={post.category}
-                post={statePost}/>
+                post={this.state.post}/>
               <button
                 onClick={() => this.closeModifyPostModal()}
                 style={styles.modalClose}

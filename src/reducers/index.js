@@ -5,7 +5,11 @@ import {
   REQUEST_POSTS,
   RECEIVE_POSTS,
   ADD_POST,
-  UPDATE_POST
+  UPDATE_POST,
+  REQUEST_COMMENTS,
+  RECEIVE_COMMENTS,
+  ADD_COMMENT,
+  UPDATE_COMMENT
 } from '../constants';
 
 const initialState = {
@@ -67,7 +71,44 @@ function posts(state = initialState, action){
   }
 }
 
+function comments(state = initialState, action) {
+  const { comments, comment } = action;
+
+  switch(action.type) {
+    case REQUEST_COMMENTS :
+      return Object.assign({}, state, {
+        isFetching: true
+      });
+
+    case RECEIVE_COMMENTS :
+      return Object.assign({}, state, {
+        isFetching: false,
+        items: comments
+      });
+
+    case ADD_COMMENT :
+      return Object.assign({}, state, {
+        items: [
+          ...state.items,
+          comment
+        ]
+      })
+
+    case UPDATE_COMMENT :
+      return Object.assign({}, state, {
+        items: [
+          ...state.items.filter(item => item.id !== comment.id),
+          comment
+        ]
+      });
+
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   categories,
-  posts
+  posts,
+  comments
 });

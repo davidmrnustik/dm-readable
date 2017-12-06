@@ -1,13 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-
-const styles = {
-  modalClose: {
-    position: 'absolute',
-    top: 20,
-    right: 20
-  }
-}
 
 const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) => {
   return (

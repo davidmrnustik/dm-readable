@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Loading from './Loading';
 import Modal from 'react-modal';
-import { savePost } from '../actions';
+import { savePost } from '../actions/posts';
 import PostForm from './PostForm';
 import { styles } from './common/styles';
 

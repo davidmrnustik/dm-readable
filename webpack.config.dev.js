@@ -20,6 +20,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build'),
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -57,7 +58,8 @@ module.exports = {
     HtmlWebpackPluginConfig
   ],
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
+    contentBase: path.resolve(__dirname, 'src')
   },
   devtool: 'inline-source-map',
   node: {
