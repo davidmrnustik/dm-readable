@@ -6,6 +6,8 @@ import {
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
+import { updatePostComment } from './posts';
+import { batchActions } from 'redux-batched-actions';
 
 function requestComments () {
   return {
@@ -22,10 +24,6 @@ export const fetchComments = (post) => dispatch => (
   dispatch(requestComments()),
   APIUtil
     .fetchData(`posts/${post}/comments`)
-    .then(
-      response => response.json(),
-      error => console.log('An error occured', error)
-    )
     .then(json => dispatch(receiveComments(json)))
 );
 
@@ -51,17 +49,13 @@ export function modifyComment(comment) {
   return function(dispatch) {
     return APIUtil
       .handleData('PUT', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-      .then(
-        response => response.json(),
-        error => console.log('An error occured', error)
-      )
       .then(() => {
         dispatch(updateComment(updatedComment));
       })
   }
 }
 
-export function saveComment(comment) {
+export function saveComment(comment, post = null) {
   const updatedComment = Object.assign({}, comment, {
     id: getIDToken(),
     timestamp: +new Date()
@@ -70,12 +64,11 @@ export function saveComment(comment) {
   return function(dispatch) {
     return APIUtil
       .handleData('POST', 'comments', JSON.stringify(updatedComment))
-      .then(
-        response => response.json(),
-        error => console.log('An error occured', error)
-      )
       .then(() => {
-        dispatch(addComment(updatedComment));
+        dispatch(batchActions([
+          addComment(updatedComment),
+          updatePostComment(post)
+        ]));
       })
   }
 }

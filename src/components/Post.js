@@ -6,6 +6,7 @@ import CommentList from './CommentList';
 import Modal from 'react-modal';
 import Loading from './Loading';
 import { modifyPost } from '../actions/posts';
+import { fetchComments } from '../actions/comments';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
@@ -13,7 +14,9 @@ import PostDetail from './PostDetail';
 class Post extends Component {
   static propTypes = {
     post: PropTypes.any,
-    postIsFetching: PropTypes.bool.isRequired
+    postIsFetching: PropTypes.bool.isRequired,
+    comments: PropTypes.array.isRequired,
+    commentIsFetching: PropTypes.bool.isRequired
   }
 
   state = {
@@ -25,6 +28,10 @@ class Post extends Component {
     if (nextProps.post.timestamp !== this.props.post.timestamp) {
       this.setState({ post: Object.assign({}, nextProps.post)})
     }
+  }
+
+  componentDidMount() {
+    this.props.fetchComments(this.props.post.id);
   }
 
   openModifyPostModal = () => {
@@ -53,7 +60,7 @@ class Post extends Component {
   }
 
   render() {
-    const { post, postIsFetching } = this.props;
+    const { post, postIsFetching, comments, commentIsFetching } = this.props;
     const { modifyPostModal } = this.state;
 
     return (
@@ -66,7 +73,12 @@ class Post extends Component {
             />
             <hr/>
             <h4>Comments</h4>
-            <CommentList post={post.id} />
+            {commentIsFetching ? <Loading/> : (
+              <CommentList
+                postId={post.id}
+                comments={comments}
+              />
+            )}
 
             <Modal
               isOpen={modifyPostModal}
@@ -93,17 +105,20 @@ class Post extends Component {
   }
 }
 
-function mapStateToProps({ posts }, ownProps){
+function mapStateToProps({ posts, comments }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
   return {
     post: postID && posts.items.filter(post => post.id === postID)[0],
-    postIsFetching: posts.isFetching
+    postIsFetching: posts.isFetching,
+    comments: comments.items.filter(comment => comment.id),
+    commentIsFetching: comments.isFetching
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    modifyPost: post => dispatch(modifyPost(post))
+    modifyPost: post => dispatch(modifyPost(post)),
+    fetchComments: post => dispatch(fetchComments(post))
   }
 }
 

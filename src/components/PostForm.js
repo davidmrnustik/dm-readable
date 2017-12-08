@@ -53,7 +53,7 @@ const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) =>
         <button
           type='submit'
         >
-          {modify ? 'Edit Post' : 'Add Post'}
+          {modify ? 'Save' : 'Add Post'}
         </button>
       </div>
     </form>

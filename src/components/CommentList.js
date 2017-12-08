@@ -12,30 +12,18 @@ import CommentForm from './CommentForm';
 
 class CommentList extends Component {
   static propTypes = {
-    post: PropTypes.string.isRequired
+    postId: PropTypes.string.isRequired,
+    comments: PropTypes.array.isRequired
   }
 
   state = {
-    comments: [],
     comment: Object.assign({}, this.props.comment),
-    isFetching: false,
     commentModal: false
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
   componentWillMount() {
     Modal.setAppElement('body');
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState(() => ({
-      comments: nextProps.comments,
-      isFetching: nextProps.isFetching
-    }))
-  }
-
-  componentDidMount() {
-    this.props.actions.fetchComments(this.props.post);
   }
 
   openCommentModal = () => {
@@ -59,10 +47,10 @@ class CommentList extends Component {
 
   onSubmitNewComment = event => {
     event.preventDefault();
-    this.props.actions.saveComment(this.state.comment);
-    this.setState(state => ({
+    this.props.actions.saveComment(this.state.comment, this.props.post);
+    this.setState((state, props) => ({
       comments: [
-        ...state.comments,
+        ...props.comments,
         state.comment
       ],
       comment: this.props.comment
@@ -71,18 +59,16 @@ class CommentList extends Component {
   }
 
   render() {
-    const { comments, comment, commentModal, isFetching } = this.state;
+    const { comment, commentModal } = this.state;
+    const { comments } = this.props;
 
     return (
       <div className='comments'>
-        {isFetching
-          ? <Loading/>
-          : comments.length !== 0
-            ? comments.map(comment => (
-                <Comment key={comment.id} {...comment} />
-              ))
-            : <p>There are no comments for this Post.</p>
-        }
+        {comments.length !== 0
+          ? comments.map(comment => (
+              <Comment key={comment.id} {...comment} />
+            ))
+          : <p>There are no comments for this Post.</p>}
 
         <button onClick={() => this.openCommentModal()}>Add New Comment</button>
 
@@ -111,19 +97,18 @@ class CommentList extends Component {
   }
 }
 
-function mapStateToProps({ comments }, ownProps) {
+function mapStateToProps({ posts }, ownProps) {
   const comment = {
     id: '',
     timestamp: 0,
     body: '',
     author: '',
-    parentId: ownProps.post
+    parentId: ownProps.postId
   }
 
   return {
     comment,
-    isFetching: comments.isFetching,
-    comments: comments.items
+    post: posts.items.filter(post => post.id === ownProps.postId)[0]
   }
 }
 

@@ -55,6 +55,9 @@ class PostList extends Component {
   onSubmitNewPost = event => {
     event.preventDefault();
     this.props.saveNewPost(this.state.post);
+    this.setState(() => ({
+      post: Object.assign({}, this.props.post)
+    }))
     this.closeNewPostModal();
   }
 
