@@ -25,9 +25,7 @@ class Post extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.post.timestamp !== this.props.post.timestamp) {
-      this.setState({ post: Object.assign({}, nextProps.post)})
-    }
+    this.setState({ post: Object.assign({}, this.state.post, nextProps.post)});
   }
 
   componentDidMount() {

@@ -2,8 +2,7 @@ import {
   REQUEST_POSTS,
   RECEIVE_POSTS,
   ADD_POST,
-  UPDATE_POST,
-  UPDATE_POST_COMMENT
+  UPDATE_POST
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
@@ -42,7 +41,7 @@ const updatePost = post => {
 
 const updatePostCommentCount = post => {
   return {
-    type: UPDATE_POST_COMMENT,
+    type: UPDATE_POST,
     post
   }
 };
@@ -56,16 +55,27 @@ export function updatePostComment(post) {
     return APIUtil
       .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
       .then(() => {
-        dispatch(updatePostCommentCount(post))
+        dispatch(updatePostCommentCount(updatedPost))
       })
   }
 }
 
-export function modifyPost(post) {
-  const updatedPost = Object.assign({}, post, {
-    timestamp: +new Date()
-  });
-  
+export function modifyPost(post, update = '') {
+  let updatedPost;
+
+  switch(update) {
+    case 'commentCount':
+      updatedPost = Object.assign({}, post, {
+        commentCount: post.commentCount++
+      });
+      break;
+
+    default:
+      updatedPost = Object.assign({}, post, {
+        timestamp: +new Date()
+      });
+  }
+
   return function(dispatch) {
     return APIUtil
       .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))

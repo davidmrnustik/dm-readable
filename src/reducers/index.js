@@ -6,7 +6,6 @@ import {
   RECEIVE_POSTS,
   ADD_POST,
   UPDATE_POST,
-  UPDATE_POST_COMMENT,
   REQUEST_COMMENTS,
   RECEIVE_COMMENTS,
   ADD_COMMENT,
@@ -60,14 +59,6 @@ function posts(state = initialState, action){
       });
 
     case UPDATE_POST :
-      return Object.assign({}, state, {
-        items: [
-          ...state.items.filter(item => item.id !== post.id),
-          post
-        ]
-      });
-
-    case UPDATE_POST_COMMENT :
       return Object.assign({}, state, {
         items: [
           ...state.items.filter(item => item.id !== post.id),

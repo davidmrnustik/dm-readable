@@ -6,7 +6,7 @@ import {
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
-import { updatePostComment } from './posts';
+import { modifyPost } from './posts';
 import { batchActions } from 'redux-batched-actions';
 
 function requestComments () {
@@ -67,7 +67,7 @@ export function saveComment(comment, post = null) {
       .then(() => {
         dispatch(batchActions([
           addComment(updatedComment),
-          updatePostComment(post)
+          modifyPost(post, 'commentCount')
         ]));
       })
   }
