@@ -39,27 +39,6 @@ const updatePost = post => {
   }
 };
 
-const updatePostCommentCount = post => {
-  return {
-    type: UPDATE_POST,
-    post
-  }
-};
-
-export function updatePostComment(post) {
-  const updatedPost = Object.assign({}, post, {
-    commentCount: post.commentCount++
-  });
-
-  return function(dispatch) {
-    return APIUtil
-      .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
-      .then(() => {
-        dispatch(updatePostCommentCount(updatedPost))
-      })
-  }
-}
-
 export function modifyPost(post, update = '') {
   let updatedPost;
 
