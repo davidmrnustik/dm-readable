@@ -3,6 +3,7 @@ import {
   RECEIVE_COMMENTS,
   ADD_COMMENT,
   UPDATE_COMMENT,
+  REMOVE_COMMENT
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
@@ -41,10 +42,28 @@ const updateComment = comment => {
   }
 };
 
-export function modifyComment(comment) {
-  const updatedComment = Object.assign({}, comment, {
-    timestamp: +new Date()
-  });
+const removeComment = comment => {
+  return {
+    type: REMOVE_COMMENT,
+    comment
+  }
+};
+
+export function modifyComment(comment, update = '') {
+  let updatedComment;
+
+  switch(update) {
+    case 'remove':
+      updatedComment = Object.assign({}, comment, {
+        deleted: true
+      });
+      break;
+
+    default:
+      updatedComment = Object.assign({}, comment, {
+        timestamp: +new Date()
+      });
+  }
   
   return function(dispatch) {
     return APIUtil

@@ -48,6 +48,8 @@ class CommentList extends Component {
   onSubmitNewComment = event => {
     event.preventDefault();
     this.props.actions.saveComment(this.state.comment, this.props.post);
+    // try to send this.props.comments.length
+    
     this.setState((state, props) => ({
       comments: [
         ...props.comments,
@@ -64,13 +66,16 @@ class CommentList extends Component {
 
     return (
       <div className='comments'>
+        <p><button onClick={() => this.openCommentModal()}>Add New Comment</button></p>
+
         {comments.length !== 0
           ? comments.map(comment => (
-              <Comment key={comment.id} {...comment} />
+              <Comment
+                key={comment.id}
+                comment={comment}
+              />
             ))
           : <p>There are no comments for this Post.</p>}
-
-        <button onClick={() => this.openCommentModal()}>Add New Comment</button>
 
         <Modal
           isOpen={commentModal}

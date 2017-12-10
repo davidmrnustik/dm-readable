@@ -4,14 +4,16 @@ import PropTypes from 'prop-types';
 const CommentForm = ({ onSubmit, onChange, comment, modify }) => {
   return (
     <form onSubmit={onSubmit}>
-      <div>
-        <input
-          type='text'
-          name='author'
-          value={comment.author}
-          onChange={onChange}
-          placeholder='Author'/>
-      </div>
+      {!modify && (
+        <div>
+          <input
+            type='text'
+            name='author'
+            value={comment.author}
+            onChange={onChange}
+            placeholder='Author'/>
+        </div>
+      )}
       <div>
         <textarea
           name='body'
@@ -24,7 +26,7 @@ const CommentForm = ({ onSubmit, onChange, comment, modify }) => {
         <button
           type='submit'
         >
-          Add Comment
+          {modify ? 'Save': 'Add Comment'}
         </button>
       </div>
     </form>

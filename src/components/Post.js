@@ -21,11 +21,15 @@ class Post extends Component {
 
   state = {
     post: Object.assign({}, this.props.post),
-    modifyPostModal: false
+    modifyPostModal: false,
+    comments: this.props.comments
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ post: Object.assign({}, this.state.post, nextProps.post)});
+    this.setState(state => ({
+      post: Object.assign({}, state.post, nextProps.post),
+      comments: Object.assign([], state.comments, nextProps.comments),
+    }))
   }
 
   componentDidMount() {
@@ -58,8 +62,8 @@ class Post extends Component {
   }
 
   render() {
-    const { post, postIsFetching, comments, commentIsFetching } = this.props;
-    const { modifyPostModal } = this.state;
+    const { post, postIsFetching, commentIsFetching } = this.props;
+    const { modifyPostModal, comments } = this.state;
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
@@ -108,7 +112,7 @@ function mapStateToProps({ posts, comments }, ownProps){
   return {
     post: postID && posts.items.filter(post => post.id === postID)[0],
     postIsFetching: posts.isFetching,
-    comments: comments.items.filter(comment => comment.id),
+    comments: comments.items.filter(comment => comment.id && !comment.deleted),
     commentIsFetching: comments.isFetching
   }
 }
