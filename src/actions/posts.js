@@ -39,21 +39,10 @@ const updatePost = post => {
   }
 };
 
-export function modifyPost(post, update = '') {
-  let updatedPost;
-
-  switch(update) {
-    case 'commentCount':
-      updatedPost = Object.assign({}, post, {
-        commentCount: post.commentCount++
-      });
-      break;
-
-    default:
-      updatedPost = Object.assign({}, post, {
-        timestamp: +new Date()
-      });
-  }
+export function modifyPost(post) {
+  const updatedPost = Object.assign({}, post, {
+    timestamp: +new Date()
+  });
 
   return function(dispatch) {
     return APIUtil

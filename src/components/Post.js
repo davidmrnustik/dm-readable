@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as APIUtil from '../util/api';
 import CommentList from './CommentList';
 import Modal from 'react-modal';
 import Loading from './Loading';
@@ -15,25 +14,24 @@ class Post extends Component {
   static propTypes = {
     post: PropTypes.any,
     postIsFetching: PropTypes.bool.isRequired,
-    comments: PropTypes.array.isRequired,
-    commentIsFetching: PropTypes.bool.isRequired
+    comments: PropTypes.array
   }
 
   state = {
-    post: Object.assign({}, this.props.post),
-    modifyPostModal: false,
-    comments: this.props.comments
+    post: Object.assign({}, this.props.post, {
+      commentCount: this.props.comments.length
+    }),
+    modifyPostModal: false
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState(state => ({
       post: Object.assign({}, state.post, nextProps.post),
-      comments: Object.assign([], state.comments, nextProps.comments),
     }))
   }
 
   componentDidMount() {
-    this.props.fetchComments(this.props.post.id);
+    this.props.fetchComments(this.state.post.id);
   }
 
   openModifyPostModal = () => {
@@ -62,8 +60,8 @@ class Post extends Component {
   }
 
   render() {
-    const { post, postIsFetching, commentIsFetching } = this.props;
-    const { modifyPostModal, comments } = this.state;
+    const { post, postIsFetching } = this.props;
+    const { modifyPostModal } = this.state;
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
@@ -74,13 +72,7 @@ class Post extends Component {
               onClick={() => this.openModifyPostModal()}
             />
             <hr/>
-            <h4>Comments</h4>
-            {commentIsFetching ? <Loading/> : (
-              <CommentList
-                postId={post.id}
-                comments={comments}
-              />
-            )}
+            <CommentList post={post}/>
 
             <Modal
               isOpen={modifyPostModal}
@@ -112,8 +104,7 @@ function mapStateToProps({ posts, comments }, ownProps){
   return {
     post: postID && posts.items.filter(post => post.id === postID)[0],
     postIsFetching: posts.isFetching,
-    comments: comments.items.filter(comment => comment.id && !comment.deleted),
-    commentIsFetching: comments.isFetching
+    comments: comments.items
   }
 }
 

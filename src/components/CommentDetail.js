@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const CommentDetail = ({ author, body, onClickModify, onClickDelete }) => {
+const CommentDetail = ({ author, body, openModifyModal, onClickDelete }) => {
   return (
     <div className='comment-detail'>
       <div className='comment-author'><em>{author}</em></div>
       <div className='comment-body'>{body}</div>
-      <button onClick={onClickModify}>Modify</button>
+      <button onClick={openModifyModal}>Modify</button>
       <button onClick={onClickDelete}>Delete</button>
       <div> ------------------ </div>
     </div>
@@ -16,7 +16,7 @@ const CommentDetail = ({ author, body, onClickModify, onClickDelete }) => {
 CommentDetail.propTypes = {
   author: PropTypes.string,
   body: PropTypes.string,
-  onClickModify: PropTypes.func,
+  openModifyModal: PropTypes.func,
   onClickDelete: PropTypes.func
 }
 

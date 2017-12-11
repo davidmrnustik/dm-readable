@@ -1,37 +1,58 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 import * as APIUtil from '../util/api';
 import Comment from './Comment';
 import Loading from './Loading';
 import Modal from 'react-modal';
 import { modifyPost } from '../actions/posts';
-import * as commentsAction from '../actions/comments';
 import { getIDToken } from '../util/token';
 import { styles } from './common/styles';
 import CommentForm from './CommentForm';
 
 class CommentList extends Component {
   static propTypes = {
-    post: PropTypes.object.isRequired,
-    comment: PropTypes.object.isRequired,
-    comments: PropTypes.array.isRequired,
-    commentIsFetching: PropTypes.bool.isRequired
+    post: PropTypes.object.isRequired
   }
 
   post = this.props.post;
 
+  comment = {
+    id: '',
+    timestamp: 0,
+    body: '',
+    author: '',
+    parentId: this.post.id
+  }
+
   state = {
-    comment: Object.assign({}, this.props.comment),
-    comments: Object.assign({}, this.props.comments),
+    comment: this.comment,
+    comments: [],
     modify: false,
+    commentIsFetching: false,
     commentModal: false
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
   componentWillMount() {
     Modal.setAppElement('body');
+  }
+
+  componentDidMount() {
+    this.fetchComments();
+  }
+
+  fetchComments() {
+    this.setState({ commentIsFetching: true });
+
+    APIUtil
+      .fetchData(`posts/${this.post.id}/comments`)
+      .then(json => {
+        this.setState({
+          comments: json,
+          commentIsFetching: false
+        })
+      })
   }
 
   openCommentModal = (comment = this.comment, modify = false) => {
@@ -44,7 +65,7 @@ class CommentList extends Component {
 
   closeCommentModal = () => {
     this.setState(() => ({
-      comment: this.props.comment,
+      comment: this.comment,
       commentModal: false,
       modify: false
     }))
@@ -58,16 +79,28 @@ class CommentList extends Component {
   }
 
   onSubmitNewComment = event => {
+    const updatedComment = Object.assign({}, this.state.comment, {
+      id: getIDToken(),
+      timestamp: +new Date()
+    });
+
     event.preventDefault();
-    this.props.actions.saveComment(this.state.comment);
-    this.setState((state, props) => ({
-      comment: Object.assign({}, this.props.comment),
-      comments: Object.assign({}, props.comments)
-    }))
+    this.setState({ commentIsFetching: true });
     
-    this.props.updatePost(Object.assign({}, this.props.post, {
-      commentCount: this.state.comments.length
-    }));
+    APIUtil
+      .handleData('POST', 'comments', JSON.stringify(updatedComment))
+      .then(() => {
+        this.setState(state => ({
+          comments: [
+            ...state.comments,
+            updatedComment
+          ],
+          comment: this.props.comment,
+          commentIsFetching: false
+        }))
+      });
+
+    this.props.dispatch(modifyPost(Object.assign({}, this.post)))
     this.closeCommentModal();
   }
 
@@ -129,8 +162,7 @@ class CommentList extends Component {
   // }
 
   render() {
-    const { comment, commentModal, modify } = this.state;
-    const { comments, commentIsFetching } = this.props;
+    const { comment, commentModal, comments, commentIsFetching, modify } = this.state;
 
     return (
       <div className='comments'>
@@ -178,27 +210,4 @@ class CommentList extends Component {
   }
 }
 
-function mapStateToProps({ comments }, ownProps){
-  const comment = {
-    id: '',
-    timestamp: 0,
-    body: '',
-    author: '',
-    parentId: ownProps.post.id
-  }
-
-  return {
-    comment,
-    comments: comments.items,
-    commentIsFetching: comments.isFetching
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(commentsAction, dispatch),
-    updatePost: post => dispatch(modifyPost(post))
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CommentList);
+export default connect()(CommentList);
