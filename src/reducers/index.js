@@ -89,6 +89,7 @@ function comments(state = initialState, action) {
 
     case ADD_COMMENT :
       return Object.assign({}, state, {
+        isFetching: false,
         items: [
           ...state.items,
           comment
@@ -97,6 +98,7 @@ function comments(state = initialState, action) {
 
     case UPDATE_COMMENT :
       return Object.assign({}, state, {
+        isFetching: false,
         items: [
           ...state.items.filter(item => item.id !== comment.id),
           comment
@@ -105,6 +107,7 @@ function comments(state = initialState, action) {
 
     case REMOVE_COMMENT :
       return Object.assign({}, state, {
+        isFetching: false,
         items: [
           ...state.items,
           comment

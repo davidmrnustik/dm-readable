@@ -7,8 +7,6 @@ import {
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
-import { modifyPost } from './posts';
-import { batchActions } from 'redux-batched-actions';
 
 function requestComments () {
   return {
@@ -66,6 +64,7 @@ export function modifyComment(comment, update = '') {
   }
   
   return function(dispatch) {
+    dispatch(requestComments())
     return APIUtil
       .handleData('PUT', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
       .then(() => {
@@ -81,13 +80,11 @@ export function saveComment(comment, post = null) {
   });
 
   return function(dispatch) {
+    dispatch(requestComments())
     return APIUtil
       .handleData('POST', 'comments', JSON.stringify(updatedComment))
       .then(() => {
-        dispatch(batchActions([
-          addComment(updatedComment),
-          modifyPost(post, 'commentCount')
-        ]));
+        dispatch(addComment(updatedComment));
       })
   }
 }

@@ -7,7 +7,7 @@ const PostDetail = ({ post, onClick }) => {
       <h2 className='post-title'>{post.title}</h2>
       <span className='post-author'>{post.author}</span>
       <div className='post-category'>Category: {post.category}</div>
-      <div className='post-comments'>Comments: {post.commentCount}</div>
+      <div className='post-comments'>{post.commentCount > 1 ? 'Comments' : 'Comment'}: {post.commentCount}</div>
       <div className='post-voteScore'>Votes: {post.voteScore}</div>
       <button onClick={onClick}>Edit</button>
       <hr/>

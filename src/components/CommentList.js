@@ -24,7 +24,6 @@ class CommentList extends Component {
 
   state = {
     comment: Object.assign({}, this.props.comment),
-    comments: Object.assign({}, this.props.comments),
     modify: false,
     commentModal: false
   }
@@ -32,6 +31,10 @@ class CommentList extends Component {
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
   componentWillMount() {
     Modal.setAppElement('body');
+  }
+
+  componentDidMount() {
+    this.props.actions.fetchComments(this.props.post.id);
   }
 
   openCommentModal = (comment = this.comment, modify = false) => {
@@ -60,38 +63,26 @@ class CommentList extends Component {
   onSubmitNewComment = event => {
     event.preventDefault();
     this.props.actions.saveComment(this.state.comment);
-    this.setState((state, props) => ({
-      comment: Object.assign({}, this.props.comment),
-      comments: Object.assign({}, props.comments)
+
+    this.setState(state => ({
+      comment: Object.assign({}, this.props.comment)
     }))
-    
+
     this.props.updatePost(Object.assign({}, this.props.post, {
-      commentCount: this.state.comments.length
+      commentCount: this.props.comments.length + 1
     }));
+
     this.closeCommentModal();
   }
 
   onSubmitModifyComment = event => {
-    const updatedComment = Object.assign({}, this.state.comment, {
-      timestamp: +new Date()
-    })
-
     event.preventDefault();
-    this.setState({ commentIsFetching: true });
+    this.props.actions.modifyComment(this.state.comment);
 
-    APIUtil
-      .handleData('PUT', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-      .then(() => {
-        this.setState(state => ({
-          comments: [
-            ...state.comments.filter(comment => comment.id !== updatedComment.id),
-            updatedComment
-          ],
-          comment: this.props.comment,
-          commentIsFetching: false,
-          modify: false
-        }))
-      })
+    this.setState(state => ({
+      comment: this.props.comment,
+      modify: false
+    }))
 
     this.closeCommentModal();
   }
@@ -100,33 +91,13 @@ class CommentList extends Component {
     let deleteComment = confirm('Are you sure?');
 
     if (deleteComment) {
-      const updatedComment = Object.assign({}, comment, {
-        deleted: true
-      })
+      this.props.actions.modifyComment(comment, 'remove');
 
-      this.setState({ commentIsFetching: true });
-
-      APIUtil
-        .handleData('PUT', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-        .then(() => {
-          this.setState(state => ({
-            comments: [
-              ...state.comments.filter(comment => comment.id !== updatedComment.id)
-            ],
-            commentIsFetching: false
-          }))
-        })
-
-      this.props.dispatch(modifyPost(Object.assign({}, this.post)))
-      this.closeCommentModal();
+      this.props.updatePost(Object.assign({}, this.props.post, {
+        commentCount: this.props.comments.length - 1
+      }));
     }
   }
-
-  // componentWillUpdate(nextProps, nextState) {
-  //   this.props.dispatch(modifyPost(Object.assign({}, this.post, {
-  //     commentCount: nextState.comments.length
-  //   })))
-  // }
 
   render() {
     const { comment, commentModal, modify } = this.state;
@@ -139,6 +110,7 @@ class CommentList extends Component {
 
         {commentIsFetching ? <Loading/> : (
           <div className='comment-list'>
+            
             {comments.length !== 0
               ? comments.map(comment => (
                   <Comment
@@ -189,7 +161,7 @@ function mapStateToProps({ comments }, ownProps){
 
   return {
     comment,
-    comments: comments.items,
+    comments: comments.items.filter(comment => !comment.deleted),
     commentIsFetching: comments.isFetching
   }
 }

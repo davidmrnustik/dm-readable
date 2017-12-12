@@ -5,7 +5,6 @@ import CommentList from './CommentList';
 import Modal from 'react-modal';
 import Loading from './Loading';
 import { modifyPost } from '../actions/posts';
-import { fetchComments } from '../actions/comments';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
@@ -13,14 +12,11 @@ import PostDetail from './PostDetail';
 class Post extends Component {
   static propTypes = {
     post: PropTypes.any,
-    postIsFetching: PropTypes.bool.isRequired,
-    comments: PropTypes.array
+    postIsFetching: PropTypes.bool.isRequired
   }
 
   state = {
-    post: Object.assign({}, this.props.post, {
-      commentCount: this.props.comments.length
-    }),
+    post: Object.assign({}, this.props.post),
     modifyPostModal: false
   }
 
@@ -28,10 +24,6 @@ class Post extends Component {
     this.setState(state => ({
       post: Object.assign({}, state.post, nextProps.post),
     }))
-  }
-
-  componentDidMount() {
-    this.props.fetchComments(this.state.post.id);
   }
 
   openModifyPostModal = () => {
@@ -99,19 +91,17 @@ class Post extends Component {
   }
 }
 
-function mapStateToProps({ posts, comments }, ownProps){
+function mapStateToProps({ posts }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
   return {
     post: postID && posts.items.filter(post => post.id === postID)[0],
-    postIsFetching: posts.isFetching,
-    comments: comments.items
+    postIsFetching: posts.isFetching
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    modifyPost: post => dispatch(modifyPost(post)),
-    fetchComments: post => dispatch(fetchComments(post))
+    modifyPost: post => dispatch(modifyPost(post))
   }
 }
 
