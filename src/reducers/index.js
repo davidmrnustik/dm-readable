@@ -3,10 +3,12 @@ import {
   REQUEST_CATEGORIES,
   RECEIVE_CATEGORIES,
   REQUEST_POSTS,
+  REQUEST_POST_UPDATE,
   RECEIVE_POSTS,
   ADD_POST,
   UPDATE_POST,
   REQUEST_COMMENTS,
+  REQUEST_COMMENT_UPDATE,
   RECEIVE_COMMENTS,
   ADD_COMMENT,
   UPDATE_COMMENT
@@ -14,6 +16,7 @@ import {
 
 const initialState = {
   isFetching: false,
+  isUpdating: false,
   items: []
 }
 
@@ -44,6 +47,11 @@ function posts(state = initialState, action){
         isFetching: true
       });
 
+    case REQUEST_POST_UPDATE :
+      return Object.assign({}, state, {
+        isUpdating: true
+      });
+
     case RECEIVE_POSTS :
       return Object.assign({}, state, {
         isFetching: false,
@@ -63,7 +71,9 @@ function posts(state = initialState, action){
         items: [
           ...state.items.filter(item => item.id !== post.id),
           post
-        ]
+        ],
+        isFetching: false,
+        isUpdating: false
       });
 
     default:
@@ -78,6 +88,11 @@ function comments(state = initialState, action) {
     case REQUEST_COMMENTS :
       return Object.assign({}, state, {
         isFetching: true
+      });
+
+    case REQUEST_COMMENT_UPDATE :
+      return Object.assign({}, state, {
+        isUpdating: true
       });
 
     case RECEIVE_COMMENTS :
@@ -101,7 +116,8 @@ function comments(state = initialState, action) {
         items: [
           ...state.items.filter(item => item.id !== comment.id),
           comment
-        ]
+        ],
+        isUpdating: false
       });
 
     default:

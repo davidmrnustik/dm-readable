@@ -11,6 +11,7 @@ import * as commentActions from '../actions/comments';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
+import { UPVOTE_POST, DOWNVOTE_POST } from '../constants';
 
 class Post extends Component {
   static propTypes = {
@@ -70,8 +71,18 @@ class Post extends Component {
     }
   }
 
+  onClickUpvotePost = (event, post) => {
+    event.preventDefault();
+    this.props.actions.post.updatePostVote(post, UPVOTE_POST);
+  }
+
+  onClickDownvotePost = (event, post) => {
+    event.preventDefault();
+    this.props.actions.post.updatePostVote(post, DOWNVOTE_POST);
+  }
+
   render() {
-    const { post, postIsFetching } = this.props;
+    const { post, postIsFetching, postIsUpdating } = this.props;
     const { modifyPostModal } = this.state;
 
     return (
@@ -82,8 +93,11 @@ class Post extends Component {
               {...post}
               modify={true}
               showDetail={true}
+              isUpdating={postIsUpdating}
               onClickModify={() => this.openModifyPostModal()}
               onClickDelete={() => this.onSubmitDeletePost(post)}
+              onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
+              onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
             />
             <hr/>
             <CommentList post={post}/>
@@ -117,7 +131,8 @@ function mapStateToProps({ posts }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
   return {
     post: postID && posts.items.filter(post => post.id === postID).filter(post => !post.deleted)[0],
-    postIsFetching: posts.isFetching
+    postIsFetching: posts.isFetching,
+    postIsUpdating: posts.isUpdating
   }
 }
 

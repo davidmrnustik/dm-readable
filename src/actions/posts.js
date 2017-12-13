@@ -1,10 +1,13 @@
 import {
   REQUEST_POSTS,
+  REQUEST_POST_UPDATE,
   RECEIVE_POSTS,
   ADD_POST,
   UPDATE_POST,
   INCREASE_POST_COMMENT_COUNT,
-  DECREASE_POST_COMMENT_COUNT
+  DECREASE_POST_COMMENT_COUNT,
+  UPVOTE_POST,
+  DOWNVOTE_POST
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
@@ -12,6 +15,11 @@ import { getIDToken } from '../util/token';
 function requestPosts () {
   return {
     type: REQUEST_POSTS
+  }
+}
+function requestPostUpdate () {
+  return {
+    type: REQUEST_POST_UPDATE
   }
 }
 function receivePosts (posts) {
@@ -24,7 +32,7 @@ export const fetchPosts = () => dispatch => (
   dispatch(requestPosts()),
   APIUtil
     .fetchData('posts')
-    .then(json => dispatch(receivePosts(json)))
+    .then(data => dispatch(receivePosts(data)))
 );
 
 const addPost = post => {
@@ -41,7 +49,7 @@ const updatePost = post => {
   }
 };
 
-export function modifyPost(post) {
+export const modifyPost = post => {
   const updatedPost = Object.assign({}, post, {
     timestamp: +new Date()
   });
@@ -49,13 +57,11 @@ export function modifyPost(post) {
   return function(dispatch) {
     return APIUtil
       .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
-      .then(() => {
-        dispatch(updatePost(updatedPost))
-      })
+      .then(data => dispatch(updatePost(data)))
   }
 }
 
-export function savePost(post) {
+export const savePost = post => {
   const updatedPost = Object.assign({}, post, {
     id: getIDToken(),
     timestamp: +new Date()
@@ -64,13 +70,11 @@ export function savePost(post) {
   return function(dispatch) {
     return APIUtil
       .handleData('POST', 'posts', JSON.stringify(updatedPost))
-      .then(() => {
-        dispatch(addPost(updatedPost));
-      })
+      .then(data => dispatch(addPost(data)))
   }
 }
 
-export function updatePostCommentCount(post, length, type) {
+export const updatePostCommentCount = (post, length, type) => {
   let updatedPost;
 
   switch(type) {
@@ -93,13 +97,35 @@ export function updatePostCommentCount(post, length, type) {
   return function(dispatch) {
     return APIUtil
       .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
-      .then(() => {
-        dispatch(updatePost(updatedPost))
-      })
+      .then(data => dispatch(updatePost(data)))
   }
 }
 
-export function removePost(post) {
+export const updatePostVote = (post, type) => {
+  let vote = {};
+
+  switch(type) {
+    case UPVOTE_POST:
+      vote.option = 'upVote';
+      break;
+
+    case DOWNVOTE_POST:
+      vote.option = 'downVote';
+      break;
+
+    default:
+      vote = 'upVote';
+  }
+
+  return function(dispatch) {
+    dispatch(requestPostUpdate())
+    return APIUtil
+      .handleData('POST', `posts/${post.id}`, JSON.stringify(vote))
+      .then(data => dispatch(updatePost(data))) 
+  }
+}
+
+export const removePost = post => {
   const updatedPost = Object.assign({}, post, {
     deleted: true
   });
@@ -107,8 +133,6 @@ export function removePost(post) {
   return function(dispatch) {
     return APIUtil
       .handleData('DELETE', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
-      .then(() => {
-        dispatch(updatePost(updatedPost))
-      })
+      .then(data => dispatch(updatePost(data)))
   }
 }

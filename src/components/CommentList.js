@@ -9,7 +9,12 @@ import Modal from 'react-modal';
 import { updatePostCommentCount } from '../actions/posts';
 import * as commentsAction from '../actions/comments';
 import { getIDToken } from '../util/token';
-import { INCREASE_POST_COMMENT_COUNT, DECREASE_POST_COMMENT_COUNT } from '../constants';
+import {
+  INCREASE_POST_COMMENT_COUNT,
+  DECREASE_POST_COMMENT_COUNT,
+  UPVOTE_COMMENT,
+  DOWNVOTE_COMMENT
+} from '../constants';
 import { styles } from './common/styles';
 import CommentForm from './CommentForm';
 
@@ -104,9 +109,19 @@ class CommentList extends Component {
     }
   }
 
+  onClickUpvoteComment = (event, comment) => {
+    event.preventDefault();
+    this.props.actions.updateCommentVote(comment, UPVOTE_COMMENT);
+  }
+
+  onClickDownvoteComment = (event, comment) => {
+    event.preventDefault();
+    this.props.actions.updateCommentVote(comment, DOWNVOTE_COMMENT);
+  }
+
   render() {
     const { comment, commentModal, modify } = this.state;
-    const { comments, commentIsFetching } = this.props;
+    const { comments, commentIsFetching, commentIsUpdating } = this.props;
 
     return (
       <div className='comments'>
@@ -120,9 +135,12 @@ class CommentList extends Component {
               ? comments.map(comment => (
                   <Comment
                     key={comment.id}
-                    comment={comment}
+                    {...comment}
+                    isUpdating={commentIsUpdating}
                     onClickModify={() => this.openCommentModal(comment, true)}
                     onClickDelete={() => this.onSubmitDeleteComment(comment)}
+                    onClickUpvoteComment={(e) => this.onClickUpvoteComment(e, comment)}
+                    onClickDownvoteComment={(e) => this.onClickDownvoteComment(e, comment)}
                   />
                 ))
               : <p>There are no comments for this Post.</p>
@@ -161,7 +179,7 @@ function mapStateToProps({ comments }, ownProps){
     timestamp: 0,
     body: '',
     author: '',
-    voteScore: 0,
+    voteScore: 1,
     parentId: ownProps.post.id,
     deleted: false,
     parentDeleted: false
@@ -170,7 +188,8 @@ function mapStateToProps({ comments }, ownProps){
   return {
     comment,
     comments: comments.items.filter(comment => !comment.deleted),
-    commentIsFetching: comments.isFetching
+    commentIsFetching: comments.isFetching,
+    commentIsUpdating: comments.isUpdating
   }
 }
 

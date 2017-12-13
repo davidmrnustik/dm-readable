@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import Loading from './Loading';
 import Modal from 'react-modal';
 import * as postActions from '../actions/posts';
@@ -10,6 +10,7 @@ import * as commentActions from '../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
 import { styles } from './common/styles';
+import { UPVOTE_POST, DOWNVOTE_POST } from '../constants';
 
 class PostList extends Component {
   static propTypes = {
@@ -99,9 +100,26 @@ class PostList extends Component {
     }
   }
 
+  onClickUpvotePost = (event, post) => {
+    event.preventDefault();
+    this.props.actions.post.updatePostVote(post, UPVOTE_POST);
+  }
+
+  onClickDownvotePost = (event, post) => {
+    event.preventDefault();
+    this.props.actions.post.updatePostVote(post, DOWNVOTE_POST);
+  }
+
   render() {
-    const { posts, categories, postIsFetching, category } = this.props;
+    const { posts, categories, postIsFetching, postIsUpdating, category, match } = this.props;
     const { postModalOpen, post, modify } = this.state;
+    let noPostMessage;
+
+    if (match.url === '/') {
+      noPostMessage = 'There are no posts.';
+    } else {
+      noPostMessage = 'There are no posts for these category';
+    }
 
     return (
       <div className='post-list'>
@@ -114,11 +132,14 @@ class PostList extends Component {
             {...post}
             showDetail={false}
             modify={modify}
+            isUpdating={postIsUpdating}
             onClickModify={() => this.openPostModal(post, true)}
             onClickDelete={() => this.onSubmitDeletePost(post)}
+            onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
+            onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
           />
         ))}
-        {postIsFetching ? <Loading/> : posts.length === 0 && <p>There are no posts for these category.</p>}
+        {postIsFetching ? <Loading/> : posts.length === 0 && noPostMessage}
         
         <Modal
           isOpen={postModalOpen}
@@ -154,7 +175,7 @@ function mapStateToProps({ posts, categories, comments }, ownProps) {
     body: '',
     author: '',
     category: ownProps.category,
-    voteScore: 0,
+    voteScore: 1,
     deleted: false,
     commentCount: 0
   };
@@ -166,6 +187,7 @@ function mapStateToProps({ posts, categories, comments }, ownProps) {
       : posts.items.filter(item => !item.deleted),
     categories: categories.items,
     postIsFetching: posts.isFetching,
+    postIsUpdating: posts.isUpdating,
     comments: comments.items,
     commentIsFetching: comments.isFetching
   }
@@ -180,4 +202,4 @@ function mapDispatchToProps (dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PostList);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PostList));

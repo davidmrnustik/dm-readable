@@ -1,8 +1,11 @@
 import {
   REQUEST_COMMENTS,
+  REQUEST_COMMENT_UPDATE,
   RECEIVE_COMMENTS,
   ADD_COMMENT,
-  UPDATE_COMMENT
+  UPDATE_COMMENT,
+  UPVOTE_COMMENT,
+  DOWNVOTE_COMMENT
 } from '../constants';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
@@ -10,6 +13,11 @@ import { getIDToken } from '../util/token';
 function requestComments () {
   return {
     type: REQUEST_COMMENTS
+  }
+}
+function requestCommentUpdate () {
+  return {
+    type: REQUEST_COMMENT_UPDATE
   }
 }
 function receiveComments (comments) {
@@ -67,6 +75,30 @@ export function saveComment(comment, post = null) {
       .then(() => {
         dispatch(addComment(updatedComment));
       })
+  }
+}
+
+export const updateCommentVote = (comment, type) => {
+  let vote = {};
+
+  switch(type) {
+    case UPVOTE_COMMENT:
+      vote.option = 'upVote';
+      break;
+
+    case DOWNVOTE_COMMENT:
+      vote.option = 'downVote';
+      break;
+
+    default:
+      vote = 'upVote';
+  }
+
+  return function(dispatch) {
+    dispatch(requestCommentUpdate())
+    return APIUtil
+      .handleData('POST', `comments/${comment.id}`, JSON.stringify(vote))
+      .then(data => dispatch(updateComment(data))) 
   }
 }
 
