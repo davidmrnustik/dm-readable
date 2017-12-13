@@ -6,9 +6,10 @@ import * as APIUtil from '../util/api';
 import Comment from './Comment';
 import Loading from './Loading';
 import Modal from 'react-modal';
-import { modifyPost } from '../actions/posts';
+import { updatePostCommentCount } from '../actions/posts';
 import * as commentsAction from '../actions/comments';
 import { getIDToken } from '../util/token';
+import { INCREASE_POST_COMMENT_COUNT, DECREASE_POST_COMMENT_COUNT } from '../constants';
 import { styles } from './common/styles';
 import CommentForm from './CommentForm';
 
@@ -37,7 +38,7 @@ class CommentList extends Component {
     this.props.actions.fetchComments(this.props.post.id);
   }
 
-  openCommentModal = (comment = this.comment, modify = false) => {
+  openCommentModal = (comment = this.props.comment, modify = false) => {
     this.setState(state => ({
       comment: Object.assign({}, state.comment, comment),
       commentModal: true,
@@ -68,9 +69,11 @@ class CommentList extends Component {
       comment: Object.assign({}, this.props.comment)
     }))
 
-    this.props.updatePost(Object.assign({}, this.props.post, {
-      commentCount: this.props.comments.length + 1
-    }));
+    this.props.updatePost(
+      this.props.post,
+      this.props.comments.length,
+      INCREASE_POST_COMMENT_COUNT
+    );
 
     this.closeCommentModal();
   }
@@ -91,11 +94,13 @@ class CommentList extends Component {
     let deleteComment = confirm('Are you sure?');
 
     if (deleteComment) {
-      this.props.actions.modifyComment(comment, 'remove');
+      this.props.actions.removeComment(comment);
 
-      this.props.updatePost(Object.assign({}, this.props.post, {
-        commentCount: this.props.comments.length - 1
-      }));
+      this.props.updatePost(
+      this.props.post,
+      this.props.comments.length,
+      DECREASE_POST_COMMENT_COUNT
+    );
     }
   }
 
@@ -156,7 +161,10 @@ function mapStateToProps({ comments }, ownProps){
     timestamp: 0,
     body: '',
     author: '',
-    parentId: ownProps.post.id
+    voteScore: 0,
+    parentId: ownProps.post.id,
+    deleted: false,
+    parentDeleted: false
   }
 
   return {
@@ -169,7 +177,7 @@ function mapStateToProps({ comments }, ownProps){
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(commentsAction, dispatch),
-    updatePost: post => dispatch(modifyPost(post))
+    updatePost: (post, length, type) => dispatch(updatePostCommentCount(post, length, type))
   }
 }
 

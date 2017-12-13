@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 const Comment = ({ comment, onClickModify, onClickDelete }) => {
   return (
     <div className='comment-detail'>
-      <div className='comment-author'><em>{comment.author}</em></div>
-      <div className='comment-body'>{comment.body}</div>
+      <span className='comment-author'>Author: {comment.author}</span><br/>
+      <span className='comment-voteScore'>{Math.abs(comment.voteScore) > 1 ? 'Votes' : 'Vote'}: {comment.voteScore}</span><br/>
+      <span className='comment-body'>Text: {comment.body}</span><br/>
       <button onClick={onClickModify}>Modify</button>
       <button onClick={onClickDelete}>Delete</button>
-      <div> ------------------ </div>
+      <div> ------------------------------------ </div>
     </div>
   )
 }

@@ -1,24 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Loading from './Loading';
 import Modal from 'react-modal';
-import { savePost } from '../actions/posts';
+import * as postActions from '../actions/posts';
+import * as commentActions from '../actions/comments';
 import PostForm from './PostForm';
+import PostDetail from './PostDetail';
 import { styles } from './common/styles';
 
 class PostList extends Component {
   static propTypes = {
     category: PropTypes.string,
-    posts: PropTypes.array.isRequired,
-    isFetching: PropTypes.bool.isRequired,
     post: PropTypes.object,
-    saveNewPost: PropTypes.func
+    posts: PropTypes.array.isRequired,
+    postIsFetching: PropTypes.bool.isRequired,
+    saveNewPost: PropTypes.func,
+    comments: PropTypes.array.isRequired,
+    commentIsFetching: PropTypes.bool.isRequired,
+    actions: PropTypes.object.isRequired
   }
 
   state = {
-    newPostModalOpen: false,
+    postModalOpen: false,
+    modify: false,
     post: Object.assign({}, this.props.post)
   }
 
@@ -33,15 +40,23 @@ class PostList extends Component {
     Modal.setAppElement('body');
   }
 
-  openNewPostModal = () => {
-    this.setState(() => ({
-      newPostModalOpen: true
+  componentDidMount() {
+    this.props.actions.post.fetchPosts();
+  }
+
+  openPostModal = (post = this.props.post, modify = false) => {
+    this.setState(state => ({
+      post: Object.assign({}, state.post, post),
+      postModalOpen: true,
+      modify
     }))
   }
 
-  closeNewPostModal = () => {
-    this.setState(() => ({
-      newPostModalOpen: false
+  closePostModal = () => {
+    this.setState(state => ({
+      post: this.props.post,
+      postModalOpen: false,
+      modify: false
     }))
   }
 
@@ -54,46 +69,73 @@ class PostList extends Component {
 
   onSubmitNewPost = event => {
     event.preventDefault();
-    this.props.saveNewPost(this.state.post);
+    this.props.actions.post.savePost(this.state.post);
+    
     this.setState(() => ({
       post: Object.assign({}, this.props.post)
     }))
-    this.closeNewPostModal();
+    
+    this.closePostModal();
+  }
+
+  onSubmitModifyPost = event => {
+    event.preventDefault();
+    this.props.actions.post.modifyPost(this.state.post);
+    
+    this.setState(state => ({
+      post: this.props.post,
+      modify: false
+    }));
+
+    this.closePostModal();
+  }
+
+  onSubmitDeletePost = post => {
+    let deletePost = confirm('Are you sure?');
+
+    if (deletePost) {
+      this.props.actions.post.removePost(post);
+      this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
+    }
   }
 
   render() {
-    const { posts, categories, isFetching, category } = this.props;
-    const { newPostModalOpen, post } = this.state;
+    const { posts, categories, postIsFetching, category } = this.props;
+    const { postModalOpen, post, modify } = this.state;
 
     return (
       <div className='post-list'>
-        {!isFetching && posts.map(post => (
-          <p key={post.id}>
-            <Link to={`${post.category}/${post.id}`}>
-              <strong>{post.title}</strong>
-            </Link>
-          </p>
+        <button onClick={() => this.openPostModal()}>Add New Post</button>
+        <hr/>
+
+        {!postIsFetching && posts.map(post => (
+          <PostDetail
+            key={post.id}
+            {...post}
+            showDetail={false}
+            modify={modify}
+            onClickModify={() => this.openPostModal(post, true)}
+            onClickDelete={() => this.onSubmitDeletePost(post)}
+          />
         ))}
-        {isFetching ? <Loading/> : posts.length === 0 && <p>There are no posts for these category.</p>}
-
-        <button onClick={() => this.openNewPostModal()}>Add New Post</button>
-
+        {postIsFetching ? <Loading/> : posts.length === 0 && <p>There are no posts for these category.</p>}
+        
         <Modal
-          isOpen={newPostModalOpen}
+          isOpen={postModalOpen}
           shouldCloseOnOverlayClick={true}
-          onRequestClose={this.closeNewPostModal}
+          onRequestClose={this.closePostModal}
           shouldCloseOnEsc={true}>
           
           <PostForm
-            onSubmit={this.onSubmitNewPost}
-            modify={false}
+            onSubmit={modify ? this.onSubmitModifyPost : this.onSubmitNewPost }
+            modify={modify}
             onChange={this.onChangeFormControl}
             category={category}
             categories={categories}
             post={post}/>
 
           <button
-            onClick={() => this.closeNewPostModal()}
+            onClick={() => this.closePostModal()}
             style={styles.modalClose}
           >
             Close
@@ -104,7 +146,7 @@ class PostList extends Component {
   }
 }
 
-function mapStateToProps({ posts, categories }, ownProps) {
+function mapStateToProps({ posts, categories, comments }, ownProps) {
   const post = {
     id: '',
     timestamp: 0,
@@ -120,16 +162,21 @@ function mapStateToProps({ posts, categories }, ownProps) {
   return {
     post,
     posts: ownProps.category
-      ? posts.items.filter(item => item.category === ownProps.category)
-      : posts.items,
+      ? posts.items.filter(item => item.category === ownProps.category).filter(item => !item.deleted)
+      : posts.items.filter(item => !item.deleted),
     categories: categories.items,
-    isFetching: posts.isFetching
+    postIsFetching: posts.isFetching,
+    comments: comments.items,
+    commentIsFetching: comments.isFetching
   }
 }
 
 function mapDispatchToProps (dispatch) {
   return {
-    saveNewPost: post => dispatch(savePost(post))
+    actions: {
+      post: bindActionCreators(postActions, dispatch),
+      comment: bindActionCreators(commentActions, dispatch)
+    },
   }
 }
 

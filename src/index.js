@@ -5,7 +5,6 @@ import ReadableApp from './components/App';
 import './assets/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
 import { store } from './store/configureStore';
-import { fetchPosts } from './actions/posts';
 import { fetchCategories } from './actions/categories';
 
 class App extends Component {
@@ -19,7 +18,6 @@ class App extends Component {
 };
 
 store.dispatch(fetchCategories());
-store.dispatch(fetchPosts());
 
 ReactDOM.render(
   <Provider store={store}>

@@ -9,8 +9,7 @@ import {
   REQUEST_COMMENTS,
   RECEIVE_COMMENTS,
   ADD_COMMENT,
-  UPDATE_COMMENT,
-  REMOVE_COMMENT
+  UPDATE_COMMENT
 } from '../constants';
 
 const initialState = {
@@ -48,7 +47,7 @@ function posts(state = initialState, action){
     case RECEIVE_POSTS :
       return Object.assign({}, state, {
         isFetching: false,
-        items: posts
+        items: posts.filter(post => !post.deleted)
       });
 
     case ADD_POST :
@@ -104,15 +103,6 @@ function comments(state = initialState, action) {
           comment
         ]
       });
-
-    case REMOVE_COMMENT :
-      return Object.assign({}, state, {
-        isFetching: false,
-        items: [
-          ...state.items,
-          comment
-        ]
-      })
 
     default:
       return state;
