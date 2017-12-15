@@ -13,10 +13,14 @@ import {
   INCREASE_POST_COMMENT_COUNT,
   DECREASE_POST_COMMENT_COUNT,
   UPVOTE_COMMENT,
-  DOWNVOTE_COMMENT
+  DOWNVOTE_COMMENT,
+  SORT_COMMENT_DEFAULT,
+  SORT_COMMENT_ITEMS
 } from '../constants';
 import { styles } from './common/styles';
+import sortBy from 'sort-by';
 import CommentForm from './CommentForm';
+import SortForm from './SortForm';
 
 class CommentList extends Component {
   static propTypes = {
@@ -31,7 +35,8 @@ class CommentList extends Component {
   state = {
     comment: Object.assign({}, this.props.comment),
     modify: false,
-    commentModal: false
+    commentModal: false,
+    sort: SORT_COMMENT_DEFAULT
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
@@ -119,20 +124,39 @@ class CommentList extends Component {
     this.props.actions.updateCommentVote(comment, DOWNVOTE_COMMENT);
   }
 
+  onChangeSortComment = event => {
+    this.setState({
+      sort: event.target.value
+    })
+  }
+
   render() {
-    const { comment, commentModal, modify } = this.state;
+    const { comment, commentModal, modify, sort } = this.state;
     const { comments, commentIsFetching, commentIsUpdating } = this.props;
+    let sortedComments = Object.assign([], comments, comments.sort(sortBy(sort, 'voteScore', 'author')));
 
     return (
       <div className='comments'>
         <h4>Comments</h4>
-        <p><button onClick={() => this.openCommentModal()}>Add New Comment</button></p>
+        <p><button onClick={() => this.openCommentModal()}>Add New Comment</button></p>        
+
+        {sortedComments.length > 0 && (
+          <div>
+            <hr/>
+            <SortForm
+              sort={sort}
+              items={SORT_COMMENT_ITEMS}
+              onChange={e => this.onChangeSortComment(e)}
+            />
+          </div>
+        )}
+        <hr/>
 
         {commentIsFetching ? <Loading/> : (
           <div className='comment-list'>
             
-            {comments.length !== 0
-              ? comments.map(comment => (
+            {sortedComments.length !== 0
+              ? sortedComments.map(comment => (
                   <Comment
                     key={comment.id}
                     {...comment}

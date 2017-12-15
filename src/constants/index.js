@@ -24,3 +24,22 @@ export const ADD_COMMENT = 'ADD_COMMENT';
 export const UPDATE_COMMENT = 'UPDATE_COMMENT';
 export const UPVOTE_COMMENT = 'UPVOTE_COMMENT';
 export const DOWNVOTE_COMMENT = 'DOWNVOTE_COMMENT';
+
+export const SORT_POST_DEFAULT = '-timestamp';
+export const SORT_POST_ITEMS = [
+  { name: "Newest", value: "-timestamp"},
+  { name: "Oldest", value: "timestamp"},
+  { name: "Best voted", value: "-voteScore"},
+  { name: "Worst voted", value: "voteScore"},
+  { name: "Title A-Z", value: "title"},
+  { name: "Title Z-A", value: "-title"}
+];
+export const SORT_COMMENT_DEFAULT = SORT_POST_DEFAULT;
+export const SORT_COMMENT_ITEMS = [
+  { name: "Newest", value: "-timestamp"},
+  { name: "Oldest", value: "timestamp"},
+  { name: "Best voted", value: "-voteScore"},
+  { name: "Worst voted", value: "voteScore"},
+  { name: "Author A-Z", value: "author"},
+  { name: "Author Z-A", value: "-author"}
+];

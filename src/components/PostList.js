@@ -10,7 +10,14 @@ import * as commentActions from '../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
 import { styles } from './common/styles';
-import { UPVOTE_POST, DOWNVOTE_POST } from '../constants';
+import {
+  UPVOTE_POST,
+  DOWNVOTE_POST,
+  SORT_POST_DEFAULT,
+  SORT_POST_ITEMS,
+} from '../constants';
+import sortBy from 'sort-by';
+import SortForm from './SortForm';
 
 class PostList extends Component {
   static propTypes = {
@@ -27,7 +34,8 @@ class PostList extends Component {
   state = {
     postModalOpen: false,
     modify: false,
-    post: Object.assign({}, this.props.post)
+    post: Object.assign({}, this.props.post),
+    sort: SORT_POST_DEFAULT
   }
 
   componentWillReceiveProps(nextProps) {
@@ -110,10 +118,17 @@ class PostList extends Component {
     this.props.actions.post.updatePostVote(post, DOWNVOTE_POST);
   }
 
+  onChangeSortPost(event) {
+    this.setState({
+      sort: event.target.value
+    })
+  }
+
   render() {
     const { posts, categories, postIsFetching, postIsUpdating, category, match } = this.props;
-    const { postModalOpen, post, modify } = this.state;
+    const { postModalOpen, post, modify, sort } = this.state;
     let noPostMessage;
+    let sortedPosts = Object.assign([], posts, posts.sort(sortBy(sort, 'voteScore', 'title')));
 
     if (match.url === '/') {
       noPostMessage = 'There are no posts.';
@@ -124,9 +139,18 @@ class PostList extends Component {
     return (
       <div className='post-list'>
         <button onClick={() => this.openPostModal()}>Add New Post</button>
-        <hr/>
 
-        {!postIsFetching && posts.map(post => (
+        <hr/>
+        
+        <SortForm
+          sort={sort}
+          items={SORT_POST_ITEMS}
+          onChange={e => this.onChangeSortPost(e)}
+        />
+        
+        <hr />
+
+        {!postIsFetching && sortedPosts.map(post => (
           <PostDetail
             key={post.id}
             {...post}
@@ -139,7 +163,7 @@ class PostList extends Component {
             onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
           />
         ))}
-        {postIsFetching ? <Loading/> : posts.length === 0 && noPostMessage}
+        {postIsFetching ? <Loading/> : sortedPosts.length === 0 && noPostMessage}
         
         <Modal
           isOpen={postModalOpen}
