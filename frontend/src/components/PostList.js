@@ -10,24 +10,19 @@ import * as commentActions from '../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
 import { styles } from './common/styles';
-import {
-  UPVOTE_POST,
-  DOWNVOTE_POST,
-  SORT_POST_DEFAULT,
-  SORT_POST_ITEMS,
-} from '../constants';
+import * as actionTypes from '../constants';
 import sortBy from 'sort-by';
 import SortForm from './SortForm';
+import toastr from 'toastr';
 
 class PostList extends Component {
   static propTypes = {
     category: PropTypes.string,
     post: PropTypes.object,
     posts: PropTypes.array.isRequired,
-    postIsFetching: PropTypes.bool.isRequired,
-    saveNewPost: PropTypes.func,
     comments: PropTypes.array.isRequired,
-    commentIsFetching: PropTypes.bool.isRequired,
+    loading: PropTypes.bool.isRequired,
+    saveNewPost: PropTypes.func,
     actions: PropTypes.object.isRequired
   }
 
@@ -35,7 +30,8 @@ class PostList extends Component {
     postModalOpen: false,
     modify: false,
     post: Object.assign({}, this.props.post),
-    sort: SORT_POST_DEFAULT
+    sort: actionTypes.SORT_POST_DEFAULT,
+    saving: false
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,7 +46,7 @@ class PostList extends Component {
   }
 
   componentDidMount() {
-    this.props.actions.post.fetchPosts();
+    this.props.actions.post.fetchPostsIfNeeded();
   }
 
   openPostModal = (post = this.props.post, modify = false) => {
@@ -78,55 +74,74 @@ class PostList extends Component {
 
   onSubmitNewPost = event => {
     event.preventDefault();
-    this.props.actions.post.savePost(this.state.post);
-    
-    this.setState(() => ({
-      post: Object.assign({}, this.props.post)
-    }))
-    
-    this.closePostModal();
+    this.setState({ saving: true });
+
+    this.props.actions.post.savePost(this.state.post)
+      .then(() => {
+        this.setState(() => ({
+          post: Object.assign({}, this.props.post),
+          saving: false
+        }));
+        this.closePostModal();
+        toastr.success('A new post has been created.');
+      });
   }
 
   onSubmitModifyPost = event => {
     event.preventDefault();
-    this.props.actions.post.modifyPost(this.state.post);
-    
-    this.setState(state => ({
-      post: this.props.post,
-      modify: false
-    }));
+    this.setState({ saving: true });
 
-    this.closePostModal();
+    this.props.actions.post.modifyPost(this.state.post)
+      .then(() => {
+        this.setState(() => ({
+          post: Object.assign({}, this.props.post),
+          modify: false,
+          saving: false
+        }));
+        this.closePostModal();
+        toastr.success('A post has been modified.');
+      });
   }
 
   onSubmitDeletePost = post => {
     let deletePost = confirm('Are you sure?');
 
     if (deletePost) {
-      this.props.actions.post.removePost(post);
+      this.props.actions.post.removePost(post)
+        .then(() => toastr.success('A post has been removed.'))
       this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
     }
   }
 
   onClickUpvotePost = (event, post) => {
     event.preventDefault();
-    this.props.actions.post.updatePostVote(post, UPVOTE_POST);
+    this.setState({ saving: true });
+
+    this.props.actions.post.updatePostVote(post, actionTypes.UPVOTE_POST_SUCCESS)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
   onClickDownvotePost = (event, post) => {
     event.preventDefault();
-    this.props.actions.post.updatePostVote(post, DOWNVOTE_POST);
+    this.setState({ saving: true });
+
+    this.props.actions.post.updatePostVote(post, actionTypes.DOWNVOTE_POST_SUCCESS)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
-  onChangeSortPost(event) {
+  onChangeSortPost = event => {
     this.setState({
       sort: event.target.value
     })
   }
 
   render() {
-    const { posts, categories, postIsFetching, postIsUpdating, category, match } = this.props;
-    const { postModalOpen, post, modify, sort } = this.state;
+    const { posts, categories, loading, category, match } = this.props;
+    const { postModalOpen, post, modify, sort, saving } = this.state;
     let noPostMessage;
     let sortedPosts = Object.assign([], posts, posts.sort(sortBy(sort, 'voteScore', 'title')));
 
@@ -142,28 +157,31 @@ class PostList extends Component {
 
         <hr/>
         
-        <SortForm
-          sort={sort}
-          items={SORT_POST_ITEMS}
-          onChange={e => this.onChangeSortPost(e)}
-        />
+        {posts.length > 1 && (
+          <div>
+            <SortForm
+              sort={sort}
+              items={actionTypes.SORT_POST_ITEMS}
+              onChange={e => this.onChangeSortPost(e)}
+            />
+            <hr/>
+          </div>
+        )}
         
-        <hr />
-
-        {!postIsFetching && sortedPosts.map(post => (
+        {!loading && sortedPosts.map(post => (
           <PostDetail
             key={post.id}
             {...post}
             showDetail={false}
             modify={modify}
-            isUpdating={postIsUpdating}
+            loading={saving}
             onClickModify={() => this.openPostModal(post, true)}
             onClickDelete={() => this.onSubmitDeletePost(post)}
             onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
             onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
           />
         ))}
-        {postIsFetching ? <Loading/> : sortedPosts.length === 0 && noPostMessage}
+        {loading ? <Loading/> : sortedPosts.length === 0 && noPostMessage}
         
         <Modal
           isOpen={postModalOpen}
@@ -175,8 +193,8 @@ class PostList extends Component {
             onSubmit={modify ? this.onSubmitModifyPost : this.onSubmitNewPost }
             modify={modify}
             onChange={this.onChangeFormControl}
-            category={category}
             categories={categories}
+            loading={saving}
             post={post}/>
 
           <button
@@ -191,7 +209,7 @@ class PostList extends Component {
   }
 }
 
-function mapStateToProps({ posts, categories, comments }, ownProps) {
+function mapStateToProps({ posts, categories, comments, ajaxCallsInProgress }, ownProps) {
   const post = {
     id: '',
     timestamp: 0,
@@ -207,13 +225,11 @@ function mapStateToProps({ posts, categories, comments }, ownProps) {
   return {
     post,
     posts: ownProps.category
-      ? posts.items.filter(item => item.category === ownProps.category).filter(item => !item.deleted)
-      : posts.items.filter(item => !item.deleted),
-    categories: categories.items,
-    postIsFetching: posts.isFetching,
-    postIsUpdating: posts.isUpdating,
-    comments: comments.items,
-    commentIsFetching: comments.isFetching
+      ? posts.filter(item => item.category === ownProps.category).filter(item => !item.deleted)
+      : posts.filter(item => !item.deleted),
+    categories,
+    comments,
+    loading: ajaxCallsInProgress > 0
   }
 }
 

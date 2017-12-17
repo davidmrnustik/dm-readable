@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Comment = ({ author, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, isUpdating }) => {
+const Comment = ({ author, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
   return (
     <div className='comment-detail'>
       <span className='comment-author'>Author: {author}</span><br/>
       <div className='comment-voteScore'>{Math.abs(voteScore) > 1 ? 'Votes' : 'Vote'}: 
         <span className='comment-vote'>
           <small>
-            {isUpdating
+            {loading
               ? <span style={{ color: 'gray' }}>DOWNVOTE </span>
               : <a href='#' onClick={onClickDownvoteComment}>DOWNVOTE </a>
             }
           </small>
-          <strong>{isUpdating ? <span style={{ color: 'gray' }}>{voteScore}</span> : voteScore}</strong>
+          <strong>{loading ? <span style={{ color: 'gray' }}>{voteScore}</span> : voteScore}</strong>
           <small>
-            {isUpdating
+            {loading
               ? <span style={{ color: 'gray' }}> UPVOTE</span>
               : <a href='#' onClick={onClickUpvoteComment}> UPVOTE</a>
             }
@@ -37,7 +37,8 @@ Comment.propTypes = {
   onClickModify: PropTypes.func,
   onClickDelete: PropTypes.func,
   onClickUpvoteComment: PropTypes.func,
-  onClickDownvoteComment: PropTypes.func
+  onClickDownvoteComment: PropTypes.func,
+  loading: PropTypes.bool.isRequired
 }
 
 export default Comment;

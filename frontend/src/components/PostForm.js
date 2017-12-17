@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) => {
+const PostForm = ({ onSubmit, onChange, categories, post, modify, loading }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
@@ -17,7 +17,7 @@ const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) =>
           <div>
             <select
               name='category'
-              value={category}
+              value={post.category}
               onChange={onChange}
             >
               <option value=''>Select category</option>
@@ -52,8 +52,9 @@ const PostForm = ({ onSubmit, onChange, categories, post, category, modify }) =>
       <div>
         <button
           type='submit'
+          disabled={loading}
         >
-          {modify ? 'Save' : 'Add Post'}
+          {loading ? 'Saving...' : modify ? 'Save' : 'Add Post'}
         </button>
       </div>
     </form>
@@ -64,7 +65,7 @@ PostForm.postTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   modify: PropTypes.bool,
-  category: PropTypes.string,
+  loading: PropTypes.bool.isRequired,
   categories: PropTypes.array,
   post: PropTypes.object.isRequired
 }

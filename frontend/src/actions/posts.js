@@ -1,52 +1,62 @@
-import {
-  REQUEST_POSTS,
-  REQUEST_POST_UPDATE,
-  RECEIVE_POSTS,
-  ADD_POST,
-  UPDATE_POST,
-  INCREASE_POST_COMMENT_COUNT,
-  DECREASE_POST_COMMENT_COUNT,
-  UPVOTE_POST,
-  DOWNVOTE_POST
-} from '../constants';
+import * as actionTypes from '../constants';
+import { beginAjaxCall } from './ajaxStatus';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
 
-function requestPosts () {
+const receivePosts = posts => {
   return {
-    type: REQUEST_POSTS
-  }
-}
-function requestPostUpdate () {
-  return {
-    type: REQUEST_POST_UPDATE
-  }
-}
-function receivePosts (posts) {
-  return {
-    type: RECEIVE_POSTS,
+    type: actionTypes.RECEIVE_POSTS_SUCCESS,
     posts
   }
 }
-export const fetchPosts = () => dispatch => (
-  dispatch(requestPosts()),
-  APIUtil
-    .fetchData('posts')
-    .then(data => dispatch(receivePosts(data)))
-);
 
 const addPost = post => {
   return {
-    type: ADD_POST,
+    type: actionTypes.ADD_POST_SUCCESS,
     post
   }
 };
 
 const updatePost = post => {
   return {
-    type: UPDATE_POST,
+    type: actionTypes.UPDATE_POST,
     post
   }
+};
+
+const fetchPosts = () => dispatch => {
+  dispatch(beginAjaxCall());
+  return APIUtil
+    .fetchData('posts')
+    .then(data => dispatch(receivePosts(data)))
+};
+
+const shouldFetchPosts = state => {
+  const posts = state.posts.length;
+
+  if (posts === 0) {
+    return true
+  } else if (posts.ajaxCallsInProgress > 0) {
+    return false
+  } else {
+    return false
+  }
+}
+
+export const fetchPostsIfNeeded = () => {
+  return (dispatch, getState) => {
+    if (shouldFetchPosts(getState())) {
+      return dispatch(fetchPosts())
+    } else {
+      return Promise.resolve()
+    }
+  }
+}
+
+export const fetchPost = post => dispatch => {
+  return APIUtil
+    .fetchData(`posts/${post.id}`)
+    .then(data => dispatch(updatePost(data)))
 };
 
 export const modifyPost = post => {
@@ -54,7 +64,7 @@ export const modifyPost = post => {
     timestamp: +new Date()
   });
 
-  return function(dispatch) {
+  return dispatch => {
     return APIUtil
       .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
       .then(data => dispatch(updatePost(data)))
@@ -67,37 +77,11 @@ export const savePost = post => {
     timestamp: +new Date()
   });
 
-  return function(dispatch) {
+  return dispatch => {
+    dispatch(beginAjaxCall());
     return APIUtil
       .handleData('POST', 'posts', JSON.stringify(updatedPost))
       .then(data => dispatch(addPost(data)))
-  }
-}
-
-export const updatePostCommentCount = (post, length, type) => {
-  let updatedPost;
-
-  switch(type) {
-    case INCREASE_POST_COMMENT_COUNT:
-      updatedPost = Object.assign({}, post, {
-        commentCount: length + 1
-      });
-      break;
-
-    case DECREASE_POST_COMMENT_COUNT:
-      updatedPost = Object.assign({}, post, {
-        commentCount: length - 1
-      });
-      break;
-
-    default:
-      updatedPost = post;
-  }
-
-  return function(dispatch) {
-    return APIUtil
-      .handleData('PUT', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
-      .then(data => dispatch(updatePost(data)))
   }
 }
 
@@ -105,11 +89,11 @@ export const updatePostVote = (post, type) => {
   let vote = {};
 
   switch(type) {
-    case UPVOTE_POST:
+    case actionTypes.UPVOTE_POST_SUCCESS:
       vote.option = 'upVote';
       break;
 
-    case DOWNVOTE_POST:
+    case actionTypes.DOWNVOTE_POST_SUCCESS:
       vote.option = 'downVote';
       break;
 
@@ -117,8 +101,7 @@ export const updatePostVote = (post, type) => {
       vote = 'upVote';
   }
 
-  return function(dispatch) {
-    dispatch(requestPostUpdate())
+  return dispatch => {
     return APIUtil
       .handleData('POST', `posts/${post.id}`, JSON.stringify(vote))
       .then(data => dispatch(updatePost(data))) 
@@ -130,7 +113,7 @@ export const removePost = post => {
     deleted: true
   });
 
-  return function(dispatch) {
+  return dispatch => {
     return APIUtil
       .handleData('DELETE', `posts/${updatedPost.id}`, JSON.stringify(updatedPost))
       .then(data => dispatch(updatePost(data)))

@@ -11,18 +11,20 @@ import * as commentActions from '../actions/comments';
 import { styles } from './common/styles';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
-import { UPVOTE_POST, DOWNVOTE_POST } from '../constants';
+import * as actionTypes from '../constants';
+import toastr from 'toastr';
 
 class Post extends Component {
   static propTypes = {
     post: PropTypes.any,
-    postIsFetching: PropTypes.bool.isRequired,
+    loading: PropTypes.bool.isRequired,
     actions: PropTypes.object.isRequired
   }
 
   state = {
     post: Object.assign({}, this.props.post),
-    modifyPostModal: false
+    modifyPostModal: false,
+    saving: false
   }
 
   componentWillReceiveProps(nextProps) {
@@ -57,15 +59,21 @@ class Post extends Component {
 
   onSubmitModifyPost = event => {
     event.preventDefault();
-    this.props.actions.post.modifyPost(this.state.post);
-    this.closeModifyPostModal();
+    this.setState({ saving: true });
+    this.props.actions.post.modifyPost(this.state.post)
+      .then(() => {
+        this.setState({ saving: false });
+        this.closeModifyPostModal();
+        toastr.success('A post has been modified.');
+      });
   }
 
   onSubmitDeletePost = post => {
     let deletePost = confirm('Are you sure?');
 
     if (deletePost) {
-      this.props.actions.post.removePost(post);
+      this.props.actions.post.removePost(post)
+        .then(() => toastr.success('A post has been modified.'))
       this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
       this.props.history.push('/');
     }
@@ -73,27 +81,37 @@ class Post extends Component {
 
   onClickUpvotePost = (event, post) => {
     event.preventDefault();
-    this.props.actions.post.updatePostVote(post, UPVOTE_POST);
+    this.setState({ saving: true });
+
+    this.props.actions.post.updatePostVote(post, actionTypes.UPVOTE_POST_SUCCESS)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
   onClickDownvotePost = (event, post) => {
     event.preventDefault();
-    this.props.actions.post.updatePostVote(post, DOWNVOTE_POST);
+    this.setState({ saving: true });
+
+    this.props.actions.post.updatePostVote(post, actionTypes.DOWNVOTE_POST_SUCCESS)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
   render() {
-    const { post, postIsFetching, postIsUpdating } = this.props;
-    const { modifyPostModal } = this.state;
+    const { post, loading } = this.props;
+    const { modifyPostModal, saving } = this.state;
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
-        {postIsFetching ? <Loading/> : (
-          <div className='post-container'>
+        {loading ? <Loading/> : (
+          <div>
             <PostDetail
               {...post}
               modify={true}
               showDetail={true}
-              isUpdating={postIsUpdating}
+              loading={saving}
               onClickModify={() => this.openModifyPostModal()}
               onClickDelete={() => this.onSubmitDeletePost(post)}
               onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
@@ -102,37 +120,37 @@ class Post extends Component {
             <hr/>
             <CommentList post={post}/>
 
-            <Modal
-              isOpen={modifyPostModal}
-              shouldCloseOnOverlayClick={true}
-              onRequestClose={this.closeModifyPostModal}
-              shouldCloseOnEsc={true}>
-              <PostForm
-                onSubmit={this.onSubmitModifyPost}
-                modify={true}
-                onChange={this.onChangeFormControl}
-                category={post.category}
-                post={this.state.post}/>
-              <button
-                onClick={() => this.closeModifyPostModal()}
-                style={styles.modalClose}
-              >
-                Close
-              </button>
-            </Modal>
           </div>
         )}
+        <Modal
+          isOpen={modifyPostModal}
+          shouldCloseOnOverlayClick={true}
+          onRequestClose={this.closeModifyPostModal}
+          shouldCloseOnEsc={true}>
+          <PostForm
+            onSubmit={this.onSubmitModifyPost}
+            modify={true}
+            onChange={this.onChangeFormControl}
+            category={post.category}
+            loading={saving}
+            post={this.state.post}/>
+          <button
+            onClick={() => this.closeModifyPostModal()}
+            style={styles.modalClose}
+          >
+            Close
+          </button>
+        </Modal>
       </div>
     )
   }
 }
 
-function mapStateToProps({ posts }, ownProps){
+function mapStateToProps({ posts, ajaxCallsInProgress }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
   return {
-    post: postID && posts.items.filter(post => post.id === postID).filter(post => !post.deleted)[0],
-    postIsFetching: posts.isFetching,
-    postIsUpdating: posts.isUpdating
+    post: postID && posts.filter(post => post.id === postID).filter(post => !post.deleted)[0],
+    loading: ajaxCallsInProgress > 0
   }
 }
 

@@ -6,17 +6,10 @@ import * as APIUtil from '../util/api';
 import Comment from './Comment';
 import Loading from './Loading';
 import Modal from 'react-modal';
-import { updatePostCommentCount } from '../actions/posts';
+import { fetchPost} from '../actions/posts';
 import * as commentsAction from '../actions/comments';
 import { getIDToken } from '../util/token';
-import {
-  INCREASE_POST_COMMENT_COUNT,
-  DECREASE_POST_COMMENT_COUNT,
-  UPVOTE_COMMENT,
-  DOWNVOTE_COMMENT,
-  SORT_COMMENT_DEFAULT,
-  SORT_COMMENT_ITEMS
-} from '../constants';
+import * as actionTypes from '../constants';
 import { styles } from './common/styles';
 import sortBy from 'sort-by';
 import CommentForm from './CommentForm';
@@ -26,8 +19,7 @@ class CommentList extends Component {
   static propTypes = {
     post: PropTypes.object.isRequired,
     comment: PropTypes.object.isRequired,
-    comments: PropTypes.array.isRequired,
-    commentIsFetching: PropTypes.bool.isRequired
+    comments: PropTypes.array.isRequired
   }
 
   post = this.props.post;
@@ -36,7 +28,8 @@ class CommentList extends Component {
     comment: Object.assign({}, this.props.comment),
     modify: false,
     commentModal: false,
-    sort: SORT_COMMENT_DEFAULT
+    sort: actionTypes.SORT_COMMENT_DEFAULT,
+    saving: false
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
@@ -72,56 +65,62 @@ class CommentList extends Component {
   }
 
   onSubmitNewComment = event => {
+    const commentsLength = this.props.comments.length;
+
     event.preventDefault();
-    this.props.actions.saveComment(this.state.comment);
-
-    this.setState(state => ({
-      comment: Object.assign({}, this.props.comment)
-    }))
-
-    this.props.updatePost(
-      this.props.post,
-      this.props.comments.length,
-      INCREASE_POST_COMMENT_COUNT
-    );
-
-    this.closeCommentModal();
+    this.setState({ saving: true });
+    this.props.actions.saveComment(this.state.comment)
+      .then(() => {
+        this.props.updatePost(this.props.post);
+        this.setState(state => ({
+          saving: false,
+          comment: Object.assign({}, this.props.comment)
+        }))
+        this.closeCommentModal();
+      })
   }
 
   onSubmitModifyComment = event => {
     event.preventDefault();
-    this.props.actions.modifyComment(this.state.comment);
+    this.setState({ saving: true });
+    this.props.actions.modifyComment(this.state.comment)
+      .then(() => {
+        this.setState(state => ({
+          comment: this.props.comment,
+          modify: false,
+          saving: false
+        }))
+        this.closeCommentModal();
+      })
 
-    this.setState(state => ({
-      comment: this.props.comment,
-      modify: false
-    }))
-
-    this.closeCommentModal();
   }
 
   onSubmitDeleteComment = comment => {
+    const commentsLength = this.props.comments.length;
     let deleteComment = confirm('Are you sure?');
 
     if (deleteComment) {
-      this.props.actions.removeComment(comment);
-
-      this.props.updatePost(
-      this.props.post,
-      this.props.comments.length,
-      DECREASE_POST_COMMENT_COUNT
-    );
+      this.props.actions.removeComment(comment)
+        .then(() => this.props.updatePost(this.props.post))
     }
   }
 
   onClickUpvoteComment = (event, comment) => {
     event.preventDefault();
-    this.props.actions.updateCommentVote(comment, UPVOTE_COMMENT);
+    this.setState({ saving: true });
+    this.props.actions.updateCommentVote(comment, actionTypes.UPVOTE_COMMENT)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
   onClickDownvoteComment = (event, comment) => {
+    this.setState({ saving: true });
     event.preventDefault();
-    this.props.actions.updateCommentVote(comment, DOWNVOTE_COMMENT);
+    this.props.actions.updateCommentVote(comment, actionTypes.DOWNVOTE_COMMENT)
+      .then(() => {
+        this.setState({ saving: false });
+      })
   }
 
   onChangeSortComment = event => {
@@ -131,8 +130,8 @@ class CommentList extends Component {
   }
 
   render() {
-    const { comment, commentModal, modify, sort } = this.state;
-    const { comments, commentIsFetching, commentIsUpdating } = this.props;
+    const { comment, commentModal, modify, sort, saving } = this.state;
+    const { comments } = this.props;
     let sortedComments = Object.assign([], comments, comments.sort(sortBy(sort, 'voteScore', 'author')));
 
     return (
@@ -140,37 +139,34 @@ class CommentList extends Component {
         <h4>Comments</h4>
         <p><button onClick={() => this.openCommentModal()}>Add New Comment</button></p>        
 
-        {sortedComments.length > 0 && (
+        {sortedComments.length > 1 && (
           <div>
             <hr/>
             <SortForm
               sort={sort}
-              items={SORT_COMMENT_ITEMS}
+              items={actionTypes.SORT_COMMENT_ITEMS}
               onChange={e => this.onChangeSortComment(e)}
             />
           </div>
         )}
         <hr/>
 
-        {commentIsFetching ? <Loading/> : (
-          <div className='comment-list'>
-            
-            {sortedComments.length !== 0
-              ? sortedComments.map(comment => (
-                  <Comment
-                    key={comment.id}
-                    {...comment}
-                    isUpdating={commentIsUpdating}
-                    onClickModify={() => this.openCommentModal(comment, true)}
-                    onClickDelete={() => this.onSubmitDeleteComment(comment)}
-                    onClickUpvoteComment={(e) => this.onClickUpvoteComment(e, comment)}
-                    onClickDownvoteComment={(e) => this.onClickDownvoteComment(e, comment)}
-                  />
-                ))
-              : <p>There are no comments for this Post.</p>
-            }
-          </div>
-        )}
+        <div className='comment-list'>
+          {sortedComments.length !== 0
+            ? sortedComments.map(comment => (
+                <Comment
+                  key={comment.id}
+                  {...comment}
+                  loading={saving}
+                  onClickModify={() => this.openCommentModal(comment, true)}
+                  onClickDelete={() => this.onSubmitDeleteComment(comment)}
+                  onClickUpvoteComment={(e) => this.onClickUpvoteComment(e, comment)}
+                  onClickDownvoteComment={(e) => this.onClickDownvoteComment(e, comment)}
+                />
+              ))
+            : <p>There are no comments for this Post.</p>
+          }
+        </div>
 
         <Modal
           isOpen={commentModal}
@@ -181,6 +177,7 @@ class CommentList extends Component {
           <CommentForm
             onSubmit={modify ? this.onSubmitModifyComment : this.onSubmitNewComment}
             modify={modify}
+            loading={saving}
             comment={comment}
             onChange={this.onChangeFormControl}
           />
@@ -211,16 +208,14 @@ function mapStateToProps({ comments }, ownProps){
 
   return {
     comment,
-    comments: comments.items.filter(comment => !comment.deleted),
-    commentIsFetching: comments.isFetching,
-    commentIsUpdating: comments.isUpdating
+    comments: comments.filter(comment => !comment.deleted)
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(commentsAction, dispatch),
-    updatePost: (post, length, type) => dispatch(updatePostCommentCount(post, length, type))
+    updatePost: (post) => dispatch(fetchPost(post))
   }
 }
 

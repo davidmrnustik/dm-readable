@@ -1,80 +1,56 @@
-import {
-  REQUEST_COMMENTS,
-  REQUEST_COMMENT_UPDATE,
-  RECEIVE_COMMENTS,
-  ADD_COMMENT,
-  UPDATE_COMMENT,
-  UPVOTE_COMMENT,
-  DOWNVOTE_COMMENT
-} from '../constants';
+import * as actionTypes from '../constants';
 import * as APIUtil from '../util/api';
+import { beginAjaxCall } from './ajaxStatus';
 import { getIDToken } from '../util/token';
 
-function requestComments () {
+const receiveComments = comments => {
   return {
-    type: REQUEST_COMMENTS
-  }
-}
-function requestCommentUpdate () {
-  return {
-    type: REQUEST_COMMENT_UPDATE
-  }
-}
-function receiveComments (comments) {
-  return {
-    type: RECEIVE_COMMENTS,
+    type: actionTypes.RECEIVE_COMMENTS,
     comments
   }
 }
-export const fetchComments = (post) => dispatch => (
-  dispatch(requestComments()),
-  APIUtil
-    .fetchData(`posts/${post}/comments`)
-    .then(json => dispatch(receiveComments(json)))
-);
-
 const addComment = comment => {
   return {
-    type: ADD_COMMENT,
+    type: actionTypes.ADD_COMMENT,
     comment
   }
 };
 
 const updateComment = comment => {
   return {
-    type: UPDATE_COMMENT,
+    type: actionTypes.UPDATE_COMMENT,
     comment
   }
 };
 
-export function modifyComment(comment) {
+export const fetchComments = post => dispatch => (
+  APIUtil
+    .fetchData(`posts/${post}/comments`)
+    .then(data => dispatch(receiveComments(data)))
+);
+
+export const modifyComment = comment => {
   const updatedComment = Object.assign({}, comment, {
     timestamp: +new Date()
   });
   
-  return function(dispatch) {
-    dispatch(requestComments())
+  return dispatch => {
     return APIUtil
       .handleData('PUT', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-      .then(() => {
-        dispatch(updateComment(updatedComment));
-      })
+      .then(data => dispatch(updateComment(data)))
   }
 }
 
-export function saveComment(comment, post = null) {
+export const saveComment = (comment, post = null) => {
   const updatedComment = Object.assign({}, comment, {
     id: getIDToken(),
     timestamp: +new Date()
   });
 
-  return function(dispatch) {
-    dispatch(requestComments())
+  return dispatch => {
     return APIUtil
       .handleData('POST', 'comments', JSON.stringify(updatedComment))
-      .then(() => {
-        dispatch(addComment(updatedComment));
-      })
+      .then(data => dispatch(addComment(data)))
   }
 }
 
@@ -82,11 +58,11 @@ export const updateCommentVote = (comment, type) => {
   let vote = {};
 
   switch(type) {
-    case UPVOTE_COMMENT:
+    case actionTypes.UPVOTE_COMMENT:
       vote.option = 'upVote';
       break;
 
-    case DOWNVOTE_COMMENT:
+    case actionTypes.DOWNVOTE_COMMENT:
       vote.option = 'downVote';
       break;
 
@@ -94,26 +70,22 @@ export const updateCommentVote = (comment, type) => {
       vote = 'upVote';
   }
 
-  return function(dispatch) {
-    dispatch(requestCommentUpdate())
+  return dispatch => {
     return APIUtil
       .handleData('POST', `comments/${comment.id}`, JSON.stringify(vote))
       .then(data => dispatch(updateComment(data))) 
   }
 }
 
-export function removeComment(comment) {
+export const removeComment = comment => {
   const updatedComment = Object.assign({}, comment, {
     deleted: true
   });
   
-  return function(dispatch) {
-    dispatch(requestComments())
+  return dispatch => {
     return APIUtil
       .handleData('DELETE', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-      .then(() => {
-        dispatch(updateComment(updatedComment));
-      })
+      .then(data => dispatch(updateComment(data)))
   }
 }
 
@@ -125,17 +97,14 @@ export const fetchPostCommentAndRemoveIt = post => dispatch => {
     }))
 }
 
-export function removePostComment(comment) {
+const removePostComment = comment => {
   const updatedComment = Object.assign({}, comment, {
     parentDeleted: true
   });
   
-  return function(dispatch) {
-    dispatch(requestComments())
+  return dispatch => {
     return APIUtil
       .handleData('DELETE', `comments/${updatedComment.id}`, JSON.stringify(updatedComment))
-      .then(() => {
-        dispatch(updateComment(updatedComment));
-      })
+      .then(data => dispatch(updateComment(data)))
   }
 }

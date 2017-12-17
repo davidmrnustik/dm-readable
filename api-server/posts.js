@@ -1,5 +1,8 @@
 const clone = require('clone')
 const delay = require('./delay')
+const minPostTitleLength = 2;
+const minAuthorLength = 2;
+const minTextLength = 2;
 
 let db = {}
 
@@ -83,7 +86,7 @@ function getAll (token) {
 }
 
 function add (token, post) {
-  return new Promise((res) => {
+  return new Promise((res, reject) => {
     let posts = getData(token)
 
     posts[post.id] = {
@@ -98,7 +101,10 @@ function add (token, post) {
       commentCount: 0
     }
 
-    res(posts[post.id])
+    setTimeout(() => {
+
+      res(posts[post.id])
+    }, delay);
   })
 }
 
@@ -126,7 +132,9 @@ function disable (token, id) {
     return new Promise((res) => {
       let posts = getData(token)
       posts[id].deleted = true
-      res(posts[id])
+      setTimeout(() => {
+        res(posts[id])
+      }, delay);
     })
 }
 
@@ -136,7 +144,9 @@ function edit (token, id, post) {
         for (prop in post) {
             posts[id][prop] = post[prop]
         }
-        res(posts[id])
+        setTimeout(() => {
+          res(posts[id])
+        }, delay);
     })
 }
 

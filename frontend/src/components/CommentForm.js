@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const CommentForm = ({ onSubmit, onChange, comment, modify }) => {
+const CommentForm = ({ onSubmit, onChange, comment, modify, loading }) => {
   return (
     <form onSubmit={onSubmit}>
       {!modify && (
@@ -25,8 +25,9 @@ const CommentForm = ({ onSubmit, onChange, comment, modify }) => {
       <div>
         <button
           type='submit'
+          disabled={loading}
         >
-          {modify ? 'Save': 'Add Comment'}
+          {loading ? 'Saving...' : modify ? 'Save' : 'Add Comment'}
         </button>
       </div>
     </form>
@@ -36,6 +37,7 @@ const CommentForm = ({ onSubmit, onChange, comment, modify }) => {
 CommentForm.postTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
   modify: PropTypes.bool,
   comment: PropTypes.object.isRequired
 }

@@ -6,8 +6,7 @@ import Loading from './Loading';
 
 class Category extends Component {
   static propTypes = {
-    category: PropTypes.object,
-    isFetching: PropTypes.bool.isRequired
+    category: PropTypes.object
   }
 
   state = {
@@ -21,13 +20,13 @@ class Category extends Component {
   }
 
   render() {
-    const { match, isFetching } = this.props;
+    const { match } = this.props;
     const category = this.props.category || this.state.category;
 
     return (
       <div className='category'>
         <h2>This is {category.path}</h2>
-        {isFetching ? <Loading/> : <PostList category={category.path} />}
+        <PostList category={category.path} />
       </div>
     )
     
@@ -36,8 +35,7 @@ class Category extends Component {
 
 function mapStateToProps({ categories }, ownProps) {
   return {
-    category: categories.items.filter(category => category.path === ownProps.match.params.category)[0],
-    isFetching: categories.isFetching
+    category: categories.filter(category => category.path === ownProps.match.params.category)[0]
   }
 }
 

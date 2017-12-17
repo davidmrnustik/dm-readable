@@ -1,23 +1,16 @@
-import {
-  REQUEST_CATEGORIES,
-  RECEIVE_CATEGORIES
-} from '../constants';
+import * as actionTypes from '../constants';
 import * as APIUtil from '../util/api';
+import { beginAjaxCall } from './ajaxStatus';
 
-function requestCategories () {
-  return {
-    type: REQUEST_CATEGORIES
-  }
-}
 function receiveCategories (categories) {
   return {
-    type: RECEIVE_CATEGORIES,
+    type: actionTypes.RECEIVE_CATEGORIES_SUCCESS,
     categories
   }
 }
 export const fetchCategories = () => dispatch => (
-  dispatch(requestCategories()),
+  dispatch(beginAjaxCall()),
   APIUtil
     .fetchData('categories')
-    .then(json => dispatch(receiveCategories(json)))
+    .then(data => dispatch(receiveCategories(data)))
 );

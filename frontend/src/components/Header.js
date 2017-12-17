@@ -1,35 +1,38 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
 import Loading from './Loading';
 
-const Header = ({ isFetching, categories, location }) => {
-  return (
-    <div className='header'>
-      <Link to='/'>Home</Link>
-        {isFetching ? <Loading/> : categories.map(category => (
-          <div key={category.path}>
-            <Link
-              style={{ fontWeight: category.path === location.pathname.substr(1) ? 'bold' : 'normal' }}
-              to={`/${category.path}`}>
-              {category.name}
-            </Link>
-          </div>
-        ))}
-    </div>
-  )
-}
+class Header extends Component {
+  static propTypes = {
+    categories: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired
+  }
 
-Header.propTypes = {
-  categories: PropTypes.array.isRequired,
-  isFetching: PropTypes.bool.isRequired
+  render() {
+    const { loading, categories, location } = this.props;
+
+    return (
+      <div className='header'>
+        <Link to='/'>Home</Link>
+          {loading ? <Loading/> : categories.map(category => (
+            <div key={category.path}>
+              <Link
+                style={{ fontWeight: category.path === location.pathname.substr(1) ? 'bold' : 'normal' }}
+                to={`/${category.path}`}>
+                {category.name}
+              </Link>
+            </div>
+          ))}
+      </div>
+    )
+  }
 }
 
 function mapStateToProps({ categories }) {
   return {
-    categories: categories.items,
-    isFetching: categories.isFetching
+    categories
   }
 }
 
