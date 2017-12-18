@@ -3,17 +3,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
-import Loading from './Loading';
+import toastr from 'toastr';
 import Modal from 'react-modal';
-import * as postActions from '../actions/posts';
-import * as commentActions from '../actions/comments';
+import sortBy from 'sort-by';
+import { styles } from '../common/styles';
+import * as postActions from '../../actions/posts';
+import Loading from '../common/Loading';
+import * as commentActions from '../../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
-import { styles } from './common/styles';
-import * as actionTypes from '../constants';
-import sortBy from 'sort-by';
-import SortForm from './SortForm';
-import toastr from 'toastr';
+import * as actionTypes from '../../constants';
+import SortForm from '../common/SortForm';
 
 class PostList extends Component {
   static propTypes = {

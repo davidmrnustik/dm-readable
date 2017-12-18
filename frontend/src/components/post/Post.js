@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import CommentList from './CommentList';
+import toastr from 'toastr';
 import Modal from 'react-modal';
-import Loading from './Loading';
-import * as postActions from '../actions/posts';
-import * as commentActions from '../actions/comments';
-import { styles } from './common/styles';
+import { styles } from '../common/styles';
+import CommentList from '../comment/CommentList';
+import Loading from '../common/Loading';
+import * as postActions from '../../actions/posts';
+import * as commentActions from '../../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
-import * as actionTypes from '../constants';
-import toastr from 'toastr';
+import * as actionTypes from '../../constants';
 
 class Post extends Component {
   static propTypes = {
@@ -73,7 +73,7 @@ class Post extends Component {
 
     if (deletePost) {
       this.props.actions.post.removePost(post)
-        .then(() => toastr.success('A post has been modified.'))
+        .then(() => toastr.success('A post has been removed.'))
       this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
       this.props.history.push('/');
     }

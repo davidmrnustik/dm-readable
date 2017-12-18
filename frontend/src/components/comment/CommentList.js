@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
-import * as APIUtil from '../util/api';
-import Comment from './Comment';
-import Loading from './Loading';
+import * as APIUtil from '../../util/api';
 import Modal from 'react-modal';
-import { fetchPost} from '../actions/posts';
-import * as commentsAction from '../actions/comments';
-import { getIDToken } from '../util/token';
-import * as actionTypes from '../constants';
-import { styles } from './common/styles';
 import sortBy from 'sort-by';
+import { styles } from '../common/styles';
+import Comment from './Comment';
+import Loading from '../common/Loading';
+import { fetchPost} from '../../actions/posts';
+import * as commentsAction from '../../actions/comments';
+import { getIDToken } from '../../util/token';
+import * as actionTypes from '../../constants';
 import CommentForm from './CommentForm';
-import SortForm from './SortForm';
+import SortForm from '../common/SortForm';
 
 class CommentList extends Component {
   static propTypes = {

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Header from './Header';
+import Header from './common/Header';
 import Home from './Home';
 import Category from './Category';
-import Post from './Post';
+import Post from './post/Post';
 
 class ReadableApp extends Component {
   static propTypes = {

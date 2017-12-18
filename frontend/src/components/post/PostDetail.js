@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Loading from './Loading';
+import Loading from '../common/Loading';
 import { Link } from 'react-router-dom';
 
 const PostDetail = ({ id, title, author, category, commentCount, voteScore, body, onClickModify, onClickDelete, onClickUpvotePost, onClickDownvotePost, modify, loading, showDetail = false }) => {

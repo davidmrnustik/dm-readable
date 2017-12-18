@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import PostList from './PostList';
-import Loading from './Loading';
+import PostList from './post/PostList';
+import Loading from './common/Loading';
 
 class Category extends Component {
   static propTypes = {
