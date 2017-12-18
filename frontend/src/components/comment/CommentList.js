@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import * as APIUtil from '../../util/api';
 import Modal from 'react-modal';
 import sortBy from 'sort-by';
+import toastr from 'toastr';
 import { styles } from '../common/styles';
 import Comment from './Comment';
 import Loading from '../common/Loading';
@@ -77,6 +78,7 @@ class CommentList extends Component {
           comment: Object.assign({}, this.props.comment)
         }))
         this.closeCommentModal();
+        toastr.success('A new comment has been added.');
       })
   }
 
@@ -91,6 +93,7 @@ class CommentList extends Component {
           saving: false
         }))
         this.closeCommentModal();
+        toastr.success('A comment has been modified.');
       })
 
   }
@@ -101,7 +104,10 @@ class CommentList extends Component {
 
     if (deleteComment) {
       this.props.actions.removeComment(comment)
-        .then(() => this.props.updatePost(this.props.post))
+        .then(() => {
+          this.props.updatePost(this.props.post);
+          toastr.success('A comment has been removed.');
+        })
     }
   }
 
