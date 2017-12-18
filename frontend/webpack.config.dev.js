@@ -1,17 +1,22 @@
-require('dotenv').config();
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path');
+var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var getClientEnvironment = require('./env');
+var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: path.resolve(__dirname, 'src/index.html'),
-  filename: 'index.html',
-  inject: 'body'
-});
+var publicPath = '/';
+// `publicUrl` is just like `publicPath`, but we will provide it to our app
+// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
+// Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
+var publicUrl = '';
+// Get environment variables to inject into our app.
+var argvOptions = [];
 
-const extractCSS = new ExtractTextPlugin({
-  filename: '[name].css'
-})
+if(process.argv.length > 2){
+  argvOptions = process.argv;
+}
+
+var env = getClientEnvironment(publicUrl, argvOptions);
 
 module.exports = {
   entry: {
@@ -36,12 +41,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: extractCSS.extract({
-          use: [{
-            loader: "css-loader"
-          }],
-          fallback: "style-loader"
-        })
+        use: [ 'style-loader', 'css-loader' ]
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
@@ -54,8 +54,15 @@ module.exports = {
     ]
   },
   plugins: [
-    extractCSS,
-    HtmlWebpackPluginConfig
+    new InterpolateHtmlPlugin({
+      PUBLIC_URL: publicUrl
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html'),
+      filename: 'index.html',
+      inject: true
+    }),
+    new webpack.DefinePlugin(env)
   ],
   devServer: {
     historyApiFallback: true,

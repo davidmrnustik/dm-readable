@@ -1,35 +1,21 @@
-require('dotenv').config();
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path');
+var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: path.resolve(__dirname, 'src/index.html'),
-  filename: 'index.html',
-  inject: 'body'
-});
-
-const UglifyJSPluginConfig = new UglifyJSPlugin({
-  test: /\.js/,
-  sourceMap: true
-});
-
-const extractCSS = new ExtractTextPlugin({
-  filename: '[name].css'
-})
-
-const GLOBALS = {
+var env = {
   'process.env.NODE_ENV': JSON.stringify('production')
 };
 
+var publicUrl = '/';
 
 module.exports = {
   entry: path.resolve(__dirname, 'src/index.js'),
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build'),
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -45,7 +31,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: extractCSS.extract({
+        use: ExtractTextPlugin.extract({
           use: [{
             loader: "css-loader"
           }],
@@ -63,11 +49,43 @@ module.exports = {
     ]
   },
   plugins: [
+    new InterpolateHtmlPlugin({
+      PUBLIC_URL: publicUrl
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: path.resolve(__dirname, 'src/index.html'),
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true
+      }
+    }),
     new webpack.optimize.OccurrenceOrderPlugin(),
-    extractCSS,
-    HtmlWebpackPluginConfig,
-    new webpack.DefinePlugin(GLOBALS),
-    UglifyJSPluginConfig
+    new ExtractTextPlugin({
+      filename: '[name].[chunkhash:8].css'
+    }),
+    new webpack.DefinePlugin(env),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: true, // React doesn't support IE8
+        warnings: false
+      },
+      mangle: {
+        screw_ie8: true
+      },
+      output: {
+        comments: false,
+        screw_ie8: true
+      }
+    })
   ],
   node: {
     console: true,
