@@ -1,6 +1,6 @@
-const webpack = require('webpack');
-const webpackConfig = require('../webpack.config.prod.js');
-const colors = require('colors');
+var webpack = require('webpack');
+var webpackConfig = require('../webpack.config.prod.js');
+var colors = require('colors');
 
 process.env.NODE_ENV = 'production';
 
@@ -12,7 +12,7 @@ webpack(webpackConfig).run((err, stats) => {
     return 1;
   }
 
-  const info = stats.toJson();
+  var info = stats.toJson();
 
   if (info.hasErrors) {
     return info.errors.map(error => console.log(error.red));
