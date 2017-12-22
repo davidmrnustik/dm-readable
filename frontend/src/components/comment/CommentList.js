@@ -2,16 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
-import * as APIUtil from '../../util/api';
 import Modal from 'react-modal';
 import sortBy from 'sort-by';
 import toastr from 'toastr';
 import { styles } from '../common/styles';
 import Comment from './Comment';
 import Loading from '../common/Loading';
-import { fetchPost} from '../../actions/posts';
+import { fetchPost } from '../../actions/posts';
 import * as commentsAction from '../../actions/comments';
-import { getIDToken } from '../../util/token';
 import * as actionTypes from '../../constants';
 import CommentForm from './CommentForm';
 import SortForm from '../common/SortForm';
@@ -20,13 +18,12 @@ class CommentList extends Component {
   static propTypes = {
     post: PropTypes.object.isRequired,
     comment: PropTypes.object.isRequired,
-    comments: PropTypes.array.isRequired
+    comments: PropTypes.array.isRequired,
+    actions: PropTypes.object.isRequired,
+    loading: PropTypes.bool.isRequired
   }
 
-  post = this.props.post;
-
   state = {
-    comment: Object.assign({}, this.props.comment),
     modify: false,
     commentModal: false,
     sort: actionTypes.SORT_COMMENT_DEFAULT,
@@ -42,60 +39,44 @@ class CommentList extends Component {
     this.props.actions.fetchComments(this.props.post.id);
   }
 
-  openCommentModal = (comment = this.props.comment, modify = false) => {
-    this.setState(state => ({
-      comment: Object.assign({}, state.comment, comment),
+  openCommentModal = (modify = false) => {
+    this.setState({
       commentModal: true,
       modify
-    }))
+    })
   }
 
   closeCommentModal = () => {
     this.setState(() => ({
-      comment: this.props.comment,
       commentModal: false,
       modify: false
     }))
   }
 
-  onChangeFormControl = event => {
-    const field = event.target.name;
-    let comment = Object.assign({}, this.state.comment);
-    comment[field] = event.target.value;
-    return this.setState({ comment });
-  }
-
-  onSubmitNewComment = event => {
+  onSubmitNewComment = comment => {
     const commentsLength = this.props.comments.length;
 
-    event.preventDefault();
     this.setState({ saving: true });
-    this.props.actions.saveComment(this.state.comment)
+    this.props.actions.saveComment(comment)
       .then(() => {
         this.props.updatePost(this.props.post);
-        this.setState(state => ({
-          saving: false,
-          comment: Object.assign({}, this.props.comment)
-        }))
+        this.setState({ saving: false, })
         this.closeCommentModal();
         toastr.success('A new comment has been added.');
       })
   }
 
-  onSubmitModifyComment = event => {
-    event.preventDefault();
+  onSubmitModifyComment = comment => {
     this.setState({ saving: true });
-    this.props.actions.modifyComment(this.state.comment)
+    this.props.actions.modifyComment(comment)
       .then(() => {
-        this.setState(state => ({
-          comment: this.props.comment,
+        this.setState({
           modify: false,
           saving: false
-        }))
+        })
         this.closeCommentModal();
         toastr.success('A comment has been modified.');
       })
-
   }
 
   onSubmitDeleteComment = comment => {
@@ -109,6 +90,15 @@ class CommentList extends Component {
           toastr.success('A comment has been removed.');
         })
     }
+  }
+
+  onSubmitComment = comment => {
+    this.state.modify ? this.onSubmitModifyComment(comment) : this.onSubmitNewComment(comment);
+  }
+
+  onClickModify = comment => {
+    this.openCommentModal(true);
+    this.props.actions.fetchComment(comment);
   }
 
   onClickUpvoteComment = (event, comment) => {
@@ -136,8 +126,8 @@ class CommentList extends Component {
   }
 
   render() {
-    const { comment, commentModal, modify, sort, saving } = this.state;
-    const { comments } = this.props;
+    const { commentModal, modify, sort, saving } = this.state;
+    const { comment, comments, newComment, loading } = this.props;
     let sortedComments = Object.assign([], comments, comments.sort(sortBy(sort, 'voteScore', 'author')));
 
     return (
@@ -158,13 +148,13 @@ class CommentList extends Component {
         <hr/>
 
         <div className='comment-list'>
-          {sortedComments.length !== 0
+          {loading ? <Loading/> : sortedComments.length !== 0
             ? sortedComments.map(comment => (
                 <Comment
                   key={comment.id}
                   {...comment}
                   loading={saving}
-                  onClickModify={() => this.openCommentModal(comment, true)}
+                  onClickModify={() => this.onClickModify(comment)}
                   onClickDelete={() => this.onSubmitDeleteComment(comment)}
                   onClickUpvoteComment={(e) => this.onClickUpvoteComment(e, comment)}
                   onClickDownvoteComment={(e) => this.onClickDownvoteComment(e, comment)}
@@ -180,13 +170,14 @@ class CommentList extends Component {
           onRequestClose={this.closeCommentModal}
           shouldCloseOnEsc={true}>
           
-          <CommentForm
-            onSubmit={modify ? this.onSubmitModifyComment : this.onSubmitNewComment}
-            modify={modify}
-            loading={saving}
-            comment={comment}
-            onChange={this.onChangeFormControl}
-          />
+          {loading && !saving ? <Loading/> : (
+            <CommentForm
+              onSubmit={this.onSubmitComment}
+              modify={modify}
+              loading={saving}
+              comment={modify ? comment : newComment}
+            />
+          )}
 
           <button
             onClick={() => this.closeCommentModal()}
@@ -200,8 +191,8 @@ class CommentList extends Component {
   }
 }
 
-function mapStateToProps({ comments }, ownProps){
-  const comment = {
+function mapStateToProps({ comment, comments, ajaxCallsInProgress }, ownProps){
+  const newComment = {
     id: '',
     timestamp: 0,
     body: '',
@@ -213,15 +204,17 @@ function mapStateToProps({ comments }, ownProps){
   }
 
   return {
-    comment,
-    comments: comments.filter(comment => !comment.deleted)
+    newComment,
+    comment: comment || newComment,
+    comments: comments.filter(comment => !comment.deleted),
+    loading: ajaxCallsInProgress > 0
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators(commentsAction, dispatch),
-    updatePost: (post) => dispatch(fetchPost(post))
+    updatePost: (post) => dispatch(fetchPost(post, 'update'))
   }
 }
 

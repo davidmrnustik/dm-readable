@@ -10,6 +10,13 @@ const receivePosts = posts => {
   }
 }
 
+const receivePost = post => {
+  return {
+    type: actionTypes.RECEIVE_POST_SUCCESS,
+    post
+  }
+}
+
 const addPost = post => {
   return {
     type: actionTypes.ADD_POST_SUCCESS,
@@ -53,10 +60,11 @@ export const fetchPostsIfNeeded = () => {
   }
 }
 
-export const fetchPost = post => dispatch => {
+export const fetchPost = (post, method) => dispatch => {
+  method === 'fetch' && dispatch(beginAjaxCall())
   return APIUtil
     .fetchData(`posts/${post.id}`)
-    .then(data => dispatch(updatePost(data)))
+    .then(data => method === 'fetch' ? dispatch(receivePost(data)) : dispatch(updatePost(data)))
 };
 
 export const modifyPost = post => {

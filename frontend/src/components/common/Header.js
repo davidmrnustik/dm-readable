@@ -15,8 +15,9 @@ class Header extends Component {
 
     return (
       <div className='header'>
+        {loading && <Loading/>}
         <Link to='/'>Home</Link>
-          {loading ? <Loading/> : categories.map(category => (
+          {categories.map(category => (
             <div key={category.path}>
               <Link
                 style={{ fontWeight: category.path === location.pathname.substr(1) ? 'bold' : 'normal' }}

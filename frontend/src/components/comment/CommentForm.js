@@ -1,26 +1,62 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Field, reduxForm} from 'redux-form';
 
-const CommentForm = ({ onSubmit, onChange, comment, modify, loading }) => {
+const validate = values => {
+  const errors = {}
+  if(!values.author){
+    errors.author = 'Required'
+  } else if (values.author.length < 2) {
+    errors.author = 'Author must be 2 characters at least.'
+  }
+  if(!values.body){
+    errors.body = 'Required'
+  } else if (values.body.length < 3) {
+    errors.body = 'Body must be 3 characters at least.'
+  }
+  return errors
+}
+
+const renderField = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning }
+}) => (
+  <div>
+    <label>{label}</label>
+    <div>
+      {type === 'textarea' ? <textarea {...input}>{label}</textarea> : <input {...input} placeholder={label} type={type} />}
+      {touched &&
+        ((error && <span>{error}</span>) ||
+          (warning && <span>{warning}</span>))}
+    </div>
+  </div>
+)
+
+let CommentForm = ({ handleSubmit, comment, modify, loading }) => {
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       {!modify && (
         <div>
-          <input
-            type='text'
-            name='author'
-            value={comment.author}
-            onChange={onChange}
-            placeholder='Author'/>
+          <Field
+            name="author"
+            component={renderField}
+            type="text"
+            placeholder="Author"
+            label="Author"
+          />
         </div>
       )}
       <div>
-        <textarea
-          name='body'
-          value={comment.body}
-          onChange={onChange}
-          placeholder='Comment text'>
-        </textarea>
+        <Field
+          name="body"
+          component={renderField}
+          label="Text"
+          type="textarea"
+          placeholder="Text"
+        />
       </div>
       <div>
         <button
@@ -35,11 +71,20 @@ const CommentForm = ({ onSubmit, onChange, comment, modify, loading }) => {
 }
 
 CommentForm.postTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   modify: PropTypes.bool,
   comment: PropTypes.object.isRequired
 }
 
-export default CommentForm;
+CommentForm = reduxForm({
+  form: 'commentForm',
+  validate
+})(CommentForm);
+
+function mapStateToProps(state, ownProps) {
+  return {
+    initialValues: ownProps.comment
+  }
+}
+
+export default connect(mapStateToProps)(CommentForm);

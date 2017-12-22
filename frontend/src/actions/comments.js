@@ -5,10 +5,18 @@ import { getIDToken } from '../util/token';
 
 const receiveComments = comments => {
   return {
-    type: actionTypes.RECEIVE_COMMENTS,
+    type: actionTypes.RECEIVE_COMMENTS_SUCCESS,
     comments
   }
 }
+
+const receiveComment = comment => {
+  return {
+    type: actionTypes.RECEIVE_COMMENT_SUCCESS,
+    comment
+  }
+}
+
 const addComment = comment => {
   return {
     type: actionTypes.ADD_COMMENT,
@@ -23,11 +31,19 @@ const updateComment = comment => {
   }
 };
 
-export const fetchComments = post => dispatch => (
-  APIUtil
+export const fetchComments = post => dispatch => {
+  dispatch(beginAjaxCall());
+  return APIUtil
     .fetchData(`posts/${post}/comments`)
     .then(data => dispatch(receiveComments(data)))
-);
+};
+
+export const fetchComment = comment => dispatch => {
+  dispatch(beginAjaxCall());
+  return APIUtil
+    .fetchData(`comments/${comment.id}`)
+    .then(data => dispatch(receiveComment(data)))
+};
 
 export const modifyComment = comment => {
   const updatedComment = Object.assign({}, comment, {

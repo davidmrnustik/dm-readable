@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import toastr from 'toastr';
@@ -22,7 +21,6 @@ class Post extends Component {
   }
 
   state = {
-    post: Object.assign({}, this.props.post),
     modifyPostModal: false,
     saving: false
   }
@@ -39,28 +37,16 @@ class Post extends Component {
   }
 
   openModifyPostModal = () => {
-    this.setState(() => ({
-      modifyPostModal: true
-    }))
+    this.setState({ modifyPostModal: true });
   }
 
   closeModifyPostModal = () => {
-    this.setState(() => ({
-      modifyPostModal: false
-    }))
+    this.setState({ modifyPostModal: false });
   }
 
-  onChangeFormControl = event => {
-    const field = event.target.name;
-    let post = Object.assign({}, this.state.post);
-    post[field] = event.target.value;
-    return this.setState({ post });
-  }
-
-  onSubmitModifyPost = event => {
-    event.preventDefault();
+  onSubmitModifyPost = post => {
     this.setState({ saving: true });
-    this.props.actions.post.modifyPost(this.state.post)
+    this.props.actions.post.modifyPost(post)
       .then(() => {
         this.setState({ saving: false });
         this.closeModifyPostModal();
@@ -105,23 +91,20 @@ class Post extends Component {
 
     return (
       <div className='post' style={{ marginBottom: 10 }}>
-        {loading ? <Loading/> : (
-          <div>
-            <PostDetail
-              {...post}
-              modify={true}
-              showDetail={true}
-              loading={saving}
-              onClickModify={() => this.openModifyPostModal()}
-              onClickDelete={() => this.onSubmitDeletePost(post)}
-              onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
-              onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
-            />
-            <hr/>
-            <CommentList post={post}/>
+        <PostDetail
+          {...post}
+          modify={true}
+          showDetail={true}
+          loading={saving}
+          onClickModify={() => this.openModifyPostModal()}
+          onClickDelete={() => this.onSubmitDeletePost(post)}
+          onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
+          onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
+        />
+        <hr/>
+        
+        <CommentList post={post}/>
 
-          </div>
-        )}
         <Modal
           isOpen={modifyPostModal}
           shouldCloseOnOverlayClick={true}
@@ -130,10 +113,9 @@ class Post extends Component {
           <PostForm
             onSubmit={this.onSubmitModifyPost}
             modify={true}
-            onChange={this.onChangeFormControl}
             category={post.category}
             loading={saving}
-            post={this.state.post}/>
+            post={post}/>
           <button
             onClick={() => this.closeModifyPostModal()}
             style={styles.modalClose}

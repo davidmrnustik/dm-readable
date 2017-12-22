@@ -19,17 +19,16 @@ class PostList extends Component {
   static propTypes = {
     category: PropTypes.string,
     post: PropTypes.object,
+    newPost: PropTypes.object,
     posts: PropTypes.array.isRequired,
     comments: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
-    saveNewPost: PropTypes.func,
     actions: PropTypes.object.isRequired
   }
 
   state = {
     postModalOpen: false,
     modify: false,
-    post: Object.assign({}, this.props.post),
     sort: actionTypes.SORT_POST_DEFAULT,
     saving: false
   }
@@ -49,55 +48,44 @@ class PostList extends Component {
     this.props.actions.post.fetchPostsIfNeeded();
   }
 
-  openPostModal = (post = this.props.post, modify = false) => {
-    this.setState(state => ({
-      post: Object.assign({}, state.post, post),
+  openPostModal = (modify = false) => {
+    this.setState({
       postModalOpen: true,
       modify
-    }))
+    })
   }
 
   closePostModal = () => {
-    this.setState(state => ({
-      post: this.props.post,
+    this.setState({
       postModalOpen: false,
       modify: false
-    }))
+    })
   }
 
-  onChangeFormControl = event => {
-    const field = event.target.name;
-    let post = Object.assign({}, this.state.post);
-    post[field] = event.target.value;
-    return this.setState({ post });
+  onSubmitPost = post => {
+    this.state.modify ? this.onSubmitModifyPost(post) : this.onSubmitNewPost(post);
   }
 
-  onSubmitNewPost = event => {
-    event.preventDefault();
+  onSubmitNewPost = post => {
     this.setState({ saving: true });
 
-    this.props.actions.post.savePost(this.state.post)
+    this.props.actions.post.savePost(post)
       .then(() => {
-        this.setState(() => ({
-          post: Object.assign({}, this.props.post),
-          saving: false
-        }));
+        this.setState({ saving: false });
         this.closePostModal();
         toastr.success('A new post has been created.');
       });
   }
 
-  onSubmitModifyPost = event => {
-    event.preventDefault();
+  onSubmitModifyPost = post => {
     this.setState({ saving: true });
 
-    this.props.actions.post.modifyPost(this.state.post)
+    this.props.actions.post.modifyPost(post)
       .then(() => {
-        this.setState(() => ({
-          post: Object.assign({}, this.props.post),
+        this.setState({
           modify: false,
           saving: false
-        }));
+        });
         this.closePostModal();
         toastr.success('A post has been modified.');
       });
@@ -108,9 +96,14 @@ class PostList extends Component {
 
     if (deletePost) {
       this.props.actions.post.removePost(post)
-        .then(() => toastr.success('A post has been removed.'))
+        .then(() => toastr.success('A post has been removed.'));
       this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
     }
+  }
+
+  onClickModify = post => {
+    this.openPostModal(true);
+    this.props.actions.post.fetchPost(post, 'fetch');
   }
 
   onClickUpvotePost = (event, post) => {
@@ -140,8 +133,8 @@ class PostList extends Component {
   }
 
   render() {
-    const { posts, categories, loading, category, match } = this.props;
-    const { postModalOpen, post, modify, sort, saving } = this.state;
+    const { posts, categories, loading, match, post, newPost } = this.props;
+    const { postModalOpen, modify, sort, saving } = this.state;
     let noPostMessage;
     let sortedPosts = Object.assign([], posts, posts.sort(sortBy(sort, 'voteScore', 'title')));
 
@@ -175,7 +168,7 @@ class PostList extends Component {
             showDetail={false}
             modify={modify}
             loading={saving}
-            onClickModify={() => this.openPostModal(post, true)}
+            onClickModify={() => this.onClickModify(post)}
             onClickDelete={() => this.onSubmitDeletePost(post)}
             onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
             onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
@@ -189,13 +182,15 @@ class PostList extends Component {
           onRequestClose={this.closePostModal}
           shouldCloseOnEsc={true}>
           
-          <PostForm
-            onSubmit={modify ? this.onSubmitModifyPost : this.onSubmitNewPost }
-            modify={modify}
-            onChange={this.onChangeFormControl}
-            categories={categories}
-            loading={saving}
-            post={post}/>
+          {loading && !saving ? <Loading/> : (
+            <PostForm
+              onSubmit={this.onSubmitPost}
+              modify={modify}
+              categories={categories}
+              loading={saving}
+              post={modify ? post : newPost}
+            />
+          )}
 
           <button
             onClick={() => this.closePostModal()}
@@ -209,8 +204,8 @@ class PostList extends Component {
   }
 }
 
-function mapStateToProps({ posts, categories, comments, ajaxCallsInProgress }, ownProps) {
-  const post = {
+function mapStateToProps({ post, posts, categories, comments, ajaxCallsInProgress }, ownProps) {
+  const newPost = {
     id: '',
     timestamp: 0,
     title: '',
@@ -223,7 +218,8 @@ function mapStateToProps({ posts, categories, comments, ajaxCallsInProgress }, o
   };
 
   return {
-    post,
+    newPost,
+    post: post || newPost,
     posts: ownProps.category
       ? posts.filter(item => item.category === ownProps.category).filter(item => !item.deleted)
       : posts.filter(item => !item.deleted),
