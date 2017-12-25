@@ -24,8 +24,11 @@ class Category extends Component {
     const category = this.props.category || this.state.category;
 
     return (
-      <div className='category'>
-        <h2>This is {category.path}</h2>
+      <div className='container'>
+        <h3 style={{ marginTop: 0 }}>Category {category.path}</h3>
+        <p className='lead'>
+          Introductory text for category {category.path}...
+        </p>
         <PostList category={category.path} />
       </div>
     )

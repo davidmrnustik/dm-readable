@@ -24,8 +24,8 @@ export const SORT_POST_DEFAULT = '-timestamp';
 export const SORT_POST_ITEMS = [
   { name: "Newest", value: "-timestamp"},
   { name: "Oldest", value: "timestamp"},
-  { name: "Best voted", value: "-voteScore"},
-  { name: "Worst voted", value: "voteScore"},
+  { name: "Best score", value: "-voteScore"},
+  { name: "Worst score", value: "voteScore"},
   { name: "Title A-Z", value: "title"},
   { name: "Title Z-A", value: "-title"}
 ];
@@ -33,8 +33,8 @@ export const SORT_COMMENT_DEFAULT = SORT_POST_DEFAULT;
 export const SORT_COMMENT_ITEMS = [
   { name: "Newest", value: "-timestamp"},
   { name: "Oldest", value: "timestamp"},
-  { name: "Best voted", value: "-voteScore"},
-  { name: "Worst voted", value: "voteScore"},
+  { name: "Best score", value: "-voteScore"},
+  { name: "Worst score", value: "voteScore"},
   { name: "Author A-Z", value: "author"},
   { name: "Author Z-A", value: "-author"}
 ];

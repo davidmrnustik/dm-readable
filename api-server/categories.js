@@ -1,4 +1,3 @@
-const delay = require('./delay')
 const clone = require('clone')
 const config = require('./config')
 
@@ -33,9 +32,7 @@ function getData (token) {
 
 function getAll (token) {
   return new Promise((res) => {
-    setTimeout(() => {
-      res(getData(token))
-    }, delay)
+    res(getData(token))
   })
 }
 

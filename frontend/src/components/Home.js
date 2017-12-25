@@ -3,8 +3,11 @@ import PostList from './post/PostList';
 
 const Home = () => {
   return (
-    <div>
-      <h2>This is Home</h2>
+    <div className='container'>
+	    <h3 style={{ marginTop: 0 }}>Readable project</h3>
+      <p className='lead'>
+		    Readable is a Udacity course project. You can add posts and comments. You can vote, modify and remove them.
+		  </p>
       <PostList />
     </div>
   )

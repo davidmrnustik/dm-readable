@@ -1,37 +1,61 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import VoteScore from '../common/VoteScore';
+import { getDateFromTimeStamp } from '../../util/timestampToDate';
+import { Button, Panel, Row, Col } from 'react-bootstrap';
 
-const Comment = ({ author, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
+const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
+  const footer = (
+    <Row>
+      <Col sm={6}>
+        <em>Author: {author}</em>
+      </Col>
+      <Col sm={6} className='text-right'>
+        <small style={{ color: '#bbb' }}>Published: {getDateFromTimeStamp(timestamp)}</small>
+      </Col>
+    </Row>
+  )
   return (
     <div className='comment-detail'>
-      <span className='comment-author'>Author: {author}</span><br/>
-      <div className='comment-voteScore'>{Math.abs(voteScore) > 1 ? 'Votes' : 'Vote'}: 
-        <span className='comment-vote'>
-          <small>
-            {loading
-              ? <span style={{ color: 'gray' }}>DOWNVOTE </span>
-              : <a href='#' onClick={onClickDownvoteComment}>DOWNVOTE </a>
-            }
-          </small>
-          <strong>{loading ? <span style={{ color: 'gray' }}>{voteScore}</span> : voteScore}</strong>
-          <small>
-            {loading
-              ? <span style={{ color: 'gray' }}> UPVOTE</span>
-              : <a href='#' onClick={onClickUpvoteComment}> UPVOTE</a>
-            }
-          </small>
-        </span>
-      </div><br/>
-      <span className='comment-body'>Text: {body}</span><br/>
-      <button onClick={onClickModify}>Modify</button>
-      <button onClick={onClickDelete}>Delete</button>
-      <div> ------------------------------------ </div>
+      <Panel footer={footer}>
+        <p style={{ marginBottom: 20 }}>{body}</p>
+        <Row>
+          <Col sm={6}>
+            <VoteScore
+              loading={loading}
+              voteScore={voteScore}
+              onClickUpvote={onClickUpvoteComment}
+              onClickDownvote={onClickDownvoteComment}
+            />
+          </Col>
+          <Col sm={6} className='text-right'>
+            <div className='post-actions'>
+              <Button
+                bsStyle='primary'
+                onClick={onClickModify}
+                bsSize='small'
+              >
+                Edit Comment
+              </Button>
+              {' '}
+              <Button
+                bsStyle='primary'
+                onClick={onClickDelete}
+                bsSize='small'
+              >
+                Delete
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </Panel>
     </div>
   )
 }
 
 Comment.propTypes = {
   author: PropTypes.string.isRequired,
+  timestamp: PropTypes.number.isRequired,
   voteScore: PropTypes.number.isRequired,
   body: PropTypes.string,
   onClickModify: PropTypes.func,

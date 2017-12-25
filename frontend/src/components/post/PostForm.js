@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Field, reduxForm} from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
+import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } from 'react-bootstrap';
 
 const validate = values => {
   const errors = {}
@@ -32,15 +33,33 @@ const renderField = ({
   type,
   meta: { touched, error, warning }
 }) => (
-  <div>
-    <label>{label}</label>
-    <div>
-      {type === 'textarea' ? <textarea {...input}>{label}</textarea> : <input {...input} placeholder={label} type={type} />}
+  <FormGroup
+    controlId='formBasicText'
+    validationState={touched && ((error && 'error') || (warning && 'warning') || 'success') || null}
+  >
+    <Col componentClass={ControlLabel} sm={2}>
+      {label}
+    </Col>
+    <Col sm={10}>
+      {type === 'textarea'
+        ? <FormControl
+            {...input}
+            componentClass="textarea"
+            placeholder={label}
+          />
+        : <FormControl
+            {...input}
+            placeholder={label}
+            type={type}
+          />
+      }
+      <FormControl.Feedback />
+        
       {touched &&
-        ((error && <span>{error}</span>) ||
-          (warning && <span>{warning}</span>))}
-    </div>
-  </div>
+        ((error && <HelpBlock>{error}</HelpBlock>) ||
+          (warning && <HelpBlock>{warning}</HelpBlock>))}
+    </Col>
+  </FormGroup>
 )
 
 const renderSelect = ({
@@ -50,75 +69,77 @@ const renderSelect = ({
   children,
   meta: { touched, error, warning }
 }) => (
-  <div>
-    <label>{label}</label>
-    <div>
-      <select {...input}>
+  <FormGroup
+    controlId='formBasicText'
+    validationState={touched && ((error && 'error') || (warning && 'warning') || 'success') || null}
+  >
+    <Col componentClass={ControlLabel} sm={2}>
+      {label}
+    </Col>
+    <Col sm={10}>
+      <FormControl
+          componentClass="select"
+          placeholder="select"
+          {...input}
+      >
         {children}
-      </select>
+      </FormControl>
+      <FormControl.Feedback />
+
       {touched &&
-        ((error && <span>{error}</span>) ||
-          (warning && <span>{warning}</span>))}
-    </div>
-  </div>
+        ((error && <HelpBlock>{error}</HelpBlock>) ||
+          (warning && <HelpBlock>{warning}</HelpBlock>))}
+    </Col>
+  </FormGroup>
 )
 
 let PostForm = ({ handleSubmit, categories, post, modify, loading }) => {
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <Field
-          name="title"
-          component={renderField}
-          type="text"
-          placeholder="Title"
-          label="Post Title"
-        />
-      </div>
+    <Form onSubmit={handleSubmit} horizontal>
+      <Field
+        name="title"
+        component={renderField}
+        type="text"
+        placeholder="Title"
+        label="Post Title"
+      />
       {!modify && (
         <div>
-          <div>
-            <Field name="category" component={renderSelect} type="select" label="Post Category">
-              <option value=''>Select category</option>
-              {categories.map(category => (
-                <option
-                  value={category.path}
-                  key={category.path}
-                >
-                  {category.name}
-                </option>
-              ))}
-            </Field>
-          </div>
-          <div>
-            <Field
-              name="author"
-              component={renderField}
-              type="text"
-              placeholder="Author"
-              label="Post Author"
-            />
-          </div>
+          <Field name="category" component={renderSelect} type="select" label="Post Category">
+            <option value=''>Select category</option>
+            {categories.map(category => (
+              <option
+                value={category.path}
+                key={category.path}
+              >
+                {category.name}
+              </option>
+            ))}
+          </Field>
+          <Field
+            name="author"
+            component={renderField}
+            type="text"
+            placeholder="Author"
+            label="Post Author"
+          />
         </div>
       )}
-      <div>
-        <Field
-          name="body"
-          component={renderField}
-          label="Post text"
-          type="textarea"
-          placeholder="Text"
-        />
-      </div>
-      <div>
-        <button
-          type='submit'
-          disabled={loading}
-        >
-          {loading ? 'Saving...' : modify ? 'Save' : 'Add Post'}
-        </button>
-      </div>
-    </form>
+      <Field
+        name="body"
+        component={renderField}
+        label="Post text"
+        type="textarea"
+        placeholder="Text"
+      />
+      <FormGroup>
+        <Col smOffset={2} sm={10}>
+          <Button type="submit" disabled={loading} bsStyle="primary">
+            {loading ? 'Saving...' : modify ? 'Save' : 'Add Post'}
+          </Button>
+        </Col>
+      </FormGroup>
+    </Form>
   )
 }
 

@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import toastr from 'toastr';
 import Modal from 'react-modal';
 import { styles } from '../common/styles';
+import { Button, Row, Col, PageHeader, Glyphicon } from 'react-bootstrap';
 import CommentList from '../comment/CommentList';
 import Loading from '../common/Loading';
 import * as postActions from '../../actions/posts';
@@ -90,7 +91,7 @@ class Post extends Component {
     const { modifyPostModal, saving } = this.state;
 
     return (
-      <div className='post' style={{ marginBottom: 10 }}>
+      <div className='container'>
         <PostDetail
           {...post}
           modify={true}
@@ -110,18 +111,21 @@ class Post extends Component {
           shouldCloseOnOverlayClick={true}
           onRequestClose={this.closeModifyPostModal}
           shouldCloseOnEsc={true}>
+          
+          <PageHeader>Modify Post</PageHeader>
+
           <PostForm
             onSubmit={this.onSubmitModifyPost}
             modify={true}
             category={post.category}
             loading={saving}
             post={post}/>
-          <button
+          
+          <Glyphicon
+            glyph='remove'
             onClick={() => this.closeModifyPostModal()}
             style={styles.modalClose}
-          >
-            Close
-          </button>
+          />
         </Modal>
       </div>
     )

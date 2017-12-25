@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import Modal from 'react-modal';
 import sortBy from 'sort-by';
 import toastr from 'toastr';
+import { Row, Col, Button, PageHeader, Glyphicon } from 'react-bootstrap';
 import { styles } from '../common/styles';
 import Comment from './Comment';
 import Loading from '../common/Loading';
@@ -127,25 +128,36 @@ class CommentList extends Component {
 
   render() {
     const { commentModal, modify, sort, saving } = this.state;
-    const { comment, comments, newComment, loading } = this.props;
+    const { comment, comments, newComment, loading, post } = this.props;
     let sortedComments = Object.assign([], comments, comments.sort(sortBy(sort, 'voteScore', 'author')));
 
     return (
       <div className='comments'>
-        <h4>Comments</h4>
-        <p><button onClick={() => this.openCommentModal()}>Add New Comment</button></p>        
+        <Row>
+          <Col sm={6}>
+            <h4 style={{ margin: '0 0 20px 0' }}>
+              Comments ({post.commentCount})
+              { ' ' }
+              <Button
+                bsStyle='primary'
+                onClick={() => this.openCommentModal()}
+                bsSize='small'
+              >
+                Add New Comment
+              </Button>
+            </h4>
+          </Col>
 
-        {sortedComments.length > 1 && (
-          <div>
-            <hr/>
-            <SortForm
-              sort={sort}
-              items={actionTypes.SORT_COMMENT_ITEMS}
-              onChange={e => this.onChangeSortComment(e)}
-            />
-          </div>
-        )}
-        <hr/>
+          {sortedComments.length > 1 && (
+            <Col sm={6} className='text-right'>
+              <SortForm
+                sort={sort}
+                items={actionTypes.SORT_COMMENT_ITEMS}
+                onChange={e => this.onChangeSortComment(e)}
+              />
+            </Col>
+          )}
+        </Row>
 
         <div className='comment-list'>
           {loading ? <Loading/> : sortedComments.length !== 0
@@ -169,6 +181,8 @@ class CommentList extends Component {
           shouldCloseOnOverlayClick={true}
           onRequestClose={this.closeCommentModal}
           shouldCloseOnEsc={true}>
+
+          <PageHeader>{modify ? 'Modify Comment' : 'Add new Comment'}</PageHeader>
           
           {loading && !saving ? <Loading/> : (
             <CommentForm
@@ -179,12 +193,11 @@ class CommentList extends Component {
             />
           )}
 
-          <button
+          <Glyphicon
+            glyph='remove'
             onClick={() => this.closeCommentModal()}
             style={styles.modalClose}
-          >
-            Close
-          </button>
+          />
         </Modal>
       </div>
     )

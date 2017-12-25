@@ -6,12 +6,13 @@ import { Link, withRouter } from 'react-router-dom';
 import toastr from 'toastr';
 import Modal from 'react-modal';
 import sortBy from 'sort-by';
+import { Button, Row, Col, PageHeader, Glyphicon } from 'react-bootstrap';
 import { styles } from '../common/styles';
 import * as postActions from '../../actions/posts';
 import Loading from '../common/Loading';
 import * as commentActions from '../../actions/comments';
 import PostForm from './PostForm';
-import PostDetail from './PostDetail';
+import PostRow from './PostRow';
 import * as actionTypes from '../../constants';
 import SortForm from '../common/SortForm';
 
@@ -146,26 +147,29 @@ class PostList extends Component {
 
     return (
       <div className='post-list'>
-        <button onClick={() => this.openPostModal()}>Add New Post</button>
+        <Button bsStyle='primary' onClick={() => this.openPostModal()}>Add New Post</Button>
 
         <hr/>
         
-        {posts.length > 1 && (
-          <div>
-            <SortForm
-              sort={sort}
-              items={actionTypes.SORT_POST_ITEMS}
-              onChange={e => this.onChangeSortPost(e)}
-            />
-            <hr/>
-          </div>
-        )}
+        <Row>
+          <Col sm={6}>
+            <h3 style={{ margin: '0 0 20px 0' }}>Posts</h3>
+          </Col>
+          {posts.length > 1 && (
+            <Col sm={6} className='text-right'>
+              <SortForm
+                sort={sort}
+                items={actionTypes.SORT_POST_ITEMS}
+                onChange={e => this.onChangeSortPost(e)}
+              />
+            </Col>
+          )}
+        </Row>
         
         {!loading && sortedPosts.map(post => (
-          <PostDetail
-            key={post.id}
+          <PostRow
             {...post}
-            showDetail={false}
+            key={post.id}
             modify={modify}
             loading={saving}
             onClickModify={() => this.onClickModify(post)}
@@ -174,6 +178,7 @@ class PostList extends Component {
             onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
           />
         ))}
+
         {loading ? <Loading/> : sortedPosts.length === 0 && noPostMessage}
         
         <Modal
@@ -181,6 +186,8 @@ class PostList extends Component {
           shouldCloseOnOverlayClick={true}
           onRequestClose={this.closePostModal}
           shouldCloseOnEsc={true}>
+
+          <PageHeader>{modify ? 'Modify Post' : 'Add new Post'}</PageHeader>
           
           {loading && !saving ? <Loading/> : (
             <PostForm
@@ -192,12 +199,11 @@ class PostList extends Component {
             />
           )}
 
-          <button
+          <Glyphicon
+            glyph='remove'
             onClick={() => this.closePostModal()}
             style={styles.modalClose}
-          >
-            Close
-          </button>
+          />
         </Modal>
       </div>
     )  

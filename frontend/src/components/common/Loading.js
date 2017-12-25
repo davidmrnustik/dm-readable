@@ -31,7 +31,7 @@ class LoadingDots extends Component {
       text += '.';
       dots--;
     }
-    return <div>{this.props.text}{text}&nbsp;</div>;
+    return <div style={{ color: '#bbb'}}>{this.props.text}{text}&nbsp;</div>;
   }
 }
 

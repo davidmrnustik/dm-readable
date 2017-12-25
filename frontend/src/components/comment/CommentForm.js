@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Field, reduxForm} from 'redux-form';
+import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } from 'react-bootstrap';
 
 const validate = values => {
   const errors = {}
@@ -24,49 +25,62 @@ const renderField = ({
   type,
   meta: { touched, error, warning }
 }) => (
-  <div>
-    <label>{label}</label>
-    <div>
-      {type === 'textarea' ? <textarea {...input}>{label}</textarea> : <input {...input} placeholder={label} type={type} />}
+  <FormGroup
+    controlId='formBasicText'
+    validationState={touched && ((error && 'error') || (warning && 'warning') || 'success') || null}
+  >
+    <Col componentClass={ControlLabel} sm={2}>
+      {label}
+    </Col>
+    <Col sm={10}>
+      {type === 'textarea'
+        ? <FormControl
+            {...input}
+            componentClass="textarea"
+            placeholder={label}
+          />
+        : <FormControl
+            {...input}
+            placeholder={label}
+            type={type}
+          />
+      }
+      <FormControl.Feedback />
+        
       {touched &&
-        ((error && <span>{error}</span>) ||
-          (warning && <span>{warning}</span>))}
-    </div>
-  </div>
+        ((error && <HelpBlock>{error}</HelpBlock>) ||
+          (warning && <HelpBlock>{warning}</HelpBlock>))}
+    </Col>
+  </FormGroup>
 )
 
 let CommentForm = ({ handleSubmit, comment, modify, loading }) => {
   return (
-    <form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit} horizontal>
       {!modify && (
-        <div>
-          <Field
-            name="author"
-            component={renderField}
-            type="text"
-            placeholder="Author"
-            label="Author"
-          />
-        </div>
-      )}
-      <div>
         <Field
-          name="body"
+          name="author"
           component={renderField}
-          label="Text"
-          type="textarea"
-          placeholder="Text"
+          type="text"
+          placeholder="Author"
+          label="Author"
         />
-      </div>
-      <div>
-        <button
-          type='submit'
-          disabled={loading}
-        >
-          {loading ? 'Saving...' : modify ? 'Save' : 'Add Comment'}
-        </button>
-      </div>
-    </form>
+      )}
+      <Field
+        name="body"
+        component={renderField}
+        label="Text"
+        type="textarea"
+        placeholder="Text"
+      />
+      <FormGroup>
+        <Col smOffset={2} sm={10}>
+          <Button type="submit" disabled={loading} bsStyle="primary">
+            {loading ? 'Saving...' : modify ? 'Save' : 'Add Comment'}
+          </Button>
+        </Col>
+      </FormGroup>
+    </Form>
   )
 }
 

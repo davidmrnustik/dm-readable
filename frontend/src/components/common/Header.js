@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
 import Loading from './Loading';
+import { Navbar, NavItem, Nav } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 class Header extends Component {
   static propTypes = {
@@ -15,17 +17,32 @@ class Header extends Component {
 
     return (
       <div className='header'>
-        {loading && <Loading/>}
-        <Link to='/'>Home</Link>
-          {categories.map(category => (
-            <div key={category.path}>
-              <Link
-                style={{ fontWeight: category.path === location.pathname.substr(1) ? 'bold' : 'normal' }}
-                to={`/${category.path}`}>
-                {category.name}
+        <Navbar collapseOnSelect>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <Link to='/'>
+                Readable
               </Link>
-            </div>
-          ))}
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+          <Navbar.Collapse>
+            <Nav>
+              <LinkContainer exact={true} to='/'>
+                <NavItem eventKey={1}>
+                  Home
+                </NavItem>
+              </LinkContainer>
+              {categories.map(category => (
+                <LinkContainer to={`/${category.path}`} key={category.path}>
+                  <NavItem eventKey={2}>
+                    {category.name}
+                  </NavItem>
+                </LinkContainer>
+              ))}
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
       </div>
     )
   }
