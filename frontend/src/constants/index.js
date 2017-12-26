@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:3001';
+export const API_URL = process.env.REACT_APP_READABLE_API_URL || 'http://localhost:3001';
 export const API_HEADERS = {
   'Authorization': 'readable-project-davidmrnustik',
   'Content-Type': 'application/json'
