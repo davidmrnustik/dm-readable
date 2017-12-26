@@ -1,6 +1,8 @@
 const clone = require('clone')
 const posts = require('./posts')
 const delay = require('./delay')
+const minAuthorLength = 2;
+const minBodyLength = 3;
 
 let db = {}
 
@@ -58,8 +60,16 @@ function get (token, id) {
 }
 
 function add (token, comment) {
-  return new Promise((res) => {
+  return new Promise((res, reject) => {
     let comments = getData(token)
+
+    if(comment.author.length < minAuthorLength) {
+      reject(`Author must have ${minAuthorLength} characters at least.`);
+    }
+
+    if(comment.body.length < minBodyLength) {
+      reject(`Body must have ${minBodyLength} characters at least.`);
+    }
 
     comments[comment.id] = {
       id: comment.id,

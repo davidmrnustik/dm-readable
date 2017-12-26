@@ -1,5 +1,5 @@
 import * as actionTypes from '../constants';
-import { beginAjaxCall } from './ajaxStatus';
+import { beginAjaxCall, ajaxCallError } from './ajaxStatus';
 import * as APIUtil from '../util/api';
 import { getIDToken } from '../util/token';
 
@@ -89,7 +89,13 @@ export const savePost = post => {
     dispatch(beginAjaxCall());
     return APIUtil
       .handleData('POST', 'posts', JSON.stringify(updatedPost))
-      .then(data => dispatch(addPost(data)))
+      .then(data => {
+        if(data.error) {
+          dispatch(ajaxCallError(data.error));
+          throw(data.error);
+        }
+        dispatch(addPost(data));
+      })
   }
 }
 

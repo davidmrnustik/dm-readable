@@ -65,6 +65,11 @@ class CommentList extends Component {
         this.closeCommentModal();
         toastr.success('A new comment has been added.');
       })
+      .catch(error => {
+        toastr.error(error)
+        this.setState({ saving: false });
+        this.closeCommentModal();
+      })
   }
 
   onSubmitModifyComment = comment => {

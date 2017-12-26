@@ -9,17 +9,17 @@ const validate = values => {
   if(!values.title){
     errors.title = 'Required'
   } else if (values.title.length < 3) {
-    errors.title = 'Title must be 3 characters at least.'
+    errors.title = 'Title must have 3 characters at least.'
   }
   if(!values.author){
     errors.author = 'Required'
   } else if (values.author.length < 2) {
-    errors.author = 'Author must be 2 characters at least.'
+    errors.author = 'Author must have 2 characters at least.'
   }
   if(!values.body){
     errors.body = 'Required'
   } else if (values.body.length < 5) {
-    errors.body = 'Body must be 5 characters at least.'
+    errors.body = 'Body must have 5 characters at least.'
   }
   if(!values.category){
     errors.category = 'Required'

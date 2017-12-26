@@ -66,7 +66,12 @@ export const saveComment = (comment, post = null) => {
   return dispatch => {
     return APIUtil
       .handleData('POST', 'comments', JSON.stringify(updatedComment))
-      .then(data => dispatch(addComment(data)))
+      .then(data => {
+        if(data.error) {
+          throw(data.error);
+        }
+        dispatch(addComment(data));
+      })
   }
 }
 

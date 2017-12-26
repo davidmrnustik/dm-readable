@@ -75,7 +75,12 @@ class PostList extends Component {
         this.setState({ saving: false });
         this.closePostModal();
         toastr.success('A new post has been created.');
-      });
+      })
+      .catch(error => {
+        toastr.error(error)
+        this.setState({ saving: false });
+        this.closePostModal();
+      })
   }
 
   onSubmitModifyPost = post => {

@@ -171,9 +171,7 @@ app.post('/posts', bodyParser.json(), (req, res) => {
           (data) => res.send(data),
           (error) => {
               console.error(error)
-              res.status(500).send({
-                 error: 'There was an error.'
-          })
+              res.status(500).send({ error })
         }
       )
 })
@@ -278,9 +276,7 @@ app.post('/comments', bodyParser.json(), (req, res) => {
           (data) => res.send(data),
           (error) => {
               console.error(error)
-              res.status(500).send({
-                  error: 'There was an error.'
-              })
+              res.status(500).send({ error })
           }
       )
 })

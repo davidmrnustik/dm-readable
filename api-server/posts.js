@@ -1,8 +1,8 @@
 const clone = require('clone')
 const delay = require('./delay')
-const minPostTitleLength = 2;
+const minTitleLength = 3;
 const minAuthorLength = 2;
-const minTextLength = 2;
+const minBodyLength = 5;
 
 let db = {}
 
@@ -89,6 +89,18 @@ function add (token, post) {
   return new Promise((res, reject) => {
     let posts = getData(token)
 
+    if(post.title.length < minTitleLength) {
+      reject(`Title must have ${minTitleLength} characters at least.`);
+    }
+
+    if(post.author.length < minAuthorLength) {
+      reject(`Author must have ${minAuthorLength} characters at least.`);
+    }
+
+    if(post.body.length < minBodyLength) {
+      reject(`Body must have ${minBodyLength} characters at least.`);
+    }
+    
     posts[post.id] = {
       id: post.id,
       timestamp: post.timestamp,
@@ -102,7 +114,7 @@ function add (token, post) {
     }
 
     setTimeout(() => {
-
+      
       res(posts[post.id])
     }, delay);
   })
