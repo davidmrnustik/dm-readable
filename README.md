@@ -6,13 +6,13 @@ This is final assessment project for Udacity's React Redux course. The repositor
 
 #### API Server
 * `cd api-server`
-* to install all api-server dependencies, run `npm install`
+* to install all api-server dependencies, run `npm run install`
 * start the development server with `node server`
 
 #### Frontend Server
 * `cd frontend`
-* to install all frontend dependencies, run `npm install`
-* start the development server with `npm start`
+* to install all frontend dependencies, run `npm run install`
+* start the development server with `npm run start`
 * open in browser http://localhost:3000
 
 ## App
