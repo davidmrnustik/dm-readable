@@ -28,6 +28,7 @@ class Post extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // Necessary to populate post when existing post is loaded directly.
     if (this.props.post.id !== nextProps.post.id ||
       this.props.post.commentCount !== nextProps.post.commentCount) {
       this.setState({ post: Object.assign({}, nextProps.post )});
@@ -40,6 +41,7 @@ class Post extends Component {
   }
 
   componentDidMount() {
+    // Necessary to populate post id from params when post with existing comments is loaded directly.
     const postID = this.props.match ? this.props.match.params.post_id : null;
     this.props.actions.comment.fetchComments(this.state.post.id || postID);
   }

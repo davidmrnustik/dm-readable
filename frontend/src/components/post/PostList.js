@@ -34,12 +34,6 @@ class PostList extends Component {
     saving: false
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.category !== this.props.category) {
-      this.setState({ post: Object.assign({}, this.props.post, { category: nextProps.category })})
-    }
-  }
-
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
   componentWillMount() {
     Modal.setAppElement('body');

@@ -7,10 +7,10 @@ import { Button, Panel, Row, Col } from 'react-bootstrap';
 const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
   const footer = (
     <Row>
-      <Col sm={6}>
+      <Col xs={6}>
         <em>Author: {author}</em>
       </Col>
-      <Col sm={6} className='text-right'>
+      <Col xs={6} className='text-right'>
         <small style={{ color: '#bbb' }}>Published: {getDateFromTimeStamp(timestamp)}</small>
       </Col>
     </Row>
@@ -20,7 +20,7 @@ const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDel
       <Panel footer={footer}>
         <p style={{ marginBottom: 20 }}>{body}</p>
         <Row>
-          <Col sm={6}>
+          <Col xs={6}>
             <VoteScore
               loading={loading}
               voteScore={voteScore}
@@ -28,7 +28,7 @@ const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDel
               onClickDownvote={onClickDownvoteComment}
             />
           </Col>
-          <Col sm={6} className='text-right'>
+          <Col xs={6} className='text-right'>
             <div className='post-actions'>
               <Button
                 bsStyle='primary'

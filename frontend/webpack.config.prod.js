@@ -34,17 +34,12 @@ module.exports = {
         use: ExtractTextPlugin.extract({
           use: [{
             loader: "css-loader"
-          }],
-          fallback: "style-loader"
+          }]
         })
       },
       {
         test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
         loader: 'url-loader'
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
       }
     ]
   },

@@ -25,17 +25,10 @@ class CommentList extends Component {
   }
 
   state = {
-    post: Object.assign({}, this.props.post),
     modify: false,
     commentModal: false,
     sort: actionTypes.SORT_COMMENT_DEFAULT,
     saving: false
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.post.id !== nextProps.post.id) {
-      this.setState({ post: Object.assign({}, nextProps.post )});
-    }
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
@@ -58,8 +51,6 @@ class CommentList extends Component {
   }
 
   onSubmitNewComment = comment => {
-    const commentsLength = this.props.comments.length;
-
     this.setState({ saving: true });
     this.props.actions.saveComment(comment)
       .then(() => {
@@ -89,7 +80,6 @@ class CommentList extends Component {
   }
 
   onSubmitDeleteComment = comment => {
-    const commentsLength = this.props.comments.length;
     let deleteComment = confirm('Are you sure?');
 
     if (deleteComment) {
@@ -212,33 +202,19 @@ class CommentList extends Component {
   }
 }
 
-function getPostById(id, posts) {
-  const post = posts.filter(post => post.id === id);
-  if (post.length > 0) return post[0];
-  return null; 
-}
-
 function mapStateToProps({ comment, comments, posts, ajaxCallsInProgress }, ownProps){
-  const postID = ownProps.match ? ownProps.match.params.post_id : null;
   const newComment = {
     id: '',
     timestamp: 0,
     body: '',
     author: '',
     voteScore: 1,
-    parentId: ownProps.post.id || postID,
+    parentId: ownProps.post.id,
     deleted: false,
     parentDeleted: false
   }
 
-  let post = {};
-  
-  if (postID && posts.length > 0) {
-    post = getPostById(postID, posts);
-  }
-
   return {
-    post: ownProps.post || post,
     newComment,
     comment: comment || newComment,
     comments: comments.filter(comment => !comment.deleted),

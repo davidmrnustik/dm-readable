@@ -25,7 +25,7 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
   return (
     <Panel header={panelTitle}>
       <Row>
-        <Col sm={6}>
+        <Col xs={6}>
           <ul className='list-inline'>
             <li>
               <VoteScore
@@ -42,7 +42,7 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
             </li>
           </ul>
         </Col>
-        <Col sm={6} className='text-right'>
+        <Col xs={6} className='text-right'>
           <div className='post-actions'>
             <Button bsStyle='primary' onClick={onClickModify}>Edit</Button>
             {' '}
