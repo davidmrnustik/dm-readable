@@ -6,6 +6,9 @@ import { Panel, Button, Label, Row, Col } from 'react-bootstrap';
 import { getDateFromTimeStamp } from '../../util/timestampToDate';
 import VoteScore from '../common/VoteScore';
 
+/**
+ * PostRow component renders post detail on post list type pages.
+ */
 const PostRow = ({ timestamp, id, title, author, category, commentCount, voteScore, body, onClickModify, onClickDelete, onClickUpvotePost, onClickDownvotePost, modify, loading }) => {
   const panelTitle = (
     <Row>

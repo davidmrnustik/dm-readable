@@ -16,13 +16,18 @@ import PostRow from './PostRow';
 import * as actionTypes from '../../constants';
 import SortForm from '../common/SortForm';
 
+/**
+ * PostList component is a container of PostRow component.
+ * It renders list type page on homepage and category page.
+ * It contains all post functionality: add new/pre-populated modify/remove post, vote and sort posts.
+ * It receives post, posts, categories and ajax calls props.
+ */
 class PostList extends Component {
   static propTypes = {
     category: PropTypes.string,
     post: PropTypes.object,
     newPost: PropTypes.object,
     posts: PropTypes.array.isRequired,
-    comments: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     actions: PropTypes.object.isRequired
   }
@@ -205,18 +210,8 @@ class PostList extends Component {
   }
 }
 
-function mapStateToProps({ post, posts, categories, comments, ajaxCallsInProgress }, ownProps) {
-  const newPost = {
-    id: '',
-    timestamp: 0,
-    title: '',
-    body: '',
-    author: '',
-    category: ownProps.category,
-    voteScore: 1,
-    deleted: false,
-    commentCount: 0
-  };
+function mapStateToProps({ post, posts, categories, ajaxCallsInProgress }, ownProps) {
+  const newPost = Object.assign({}, actionTypes.INITIAL_POST, { category: ownProps.category });
 
   return {
     newPost,
@@ -225,7 +220,6 @@ function mapStateToProps({ post, posts, categories, comments, ajaxCallsInProgres
       ? posts.filter(item => item.category === ownProps.category).filter(item => !item.deleted)
       : posts.filter(item => !item.deleted),
     categories,
-    comments,
     loading: ajaxCallsInProgress > 0
   }
 }

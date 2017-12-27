@@ -7,6 +7,9 @@ import { getDateFromTimeStamp } from '../../util/timestampToDate';
 import { LinkContainer } from 'react-router-bootstrap';
 import VoteScore from '../common/VoteScore';
 
+/**
+ * PostDetail component renders details of the post.
+ */
 const PostDetail = ({ timestamp, id, title, author, category, commentCount, voteScore, body, onClickModify, onClickDelete, onClickUpvotePost, onClickDownvotePost, modify, loading }) => {
   return (
     <div>

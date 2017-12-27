@@ -4,6 +4,11 @@ import PropTypes from 'prop-types';
 import { Field, reduxForm} from 'redux-form';
 import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } from 'react-bootstrap';
 
+/**
+ * Frontend validation functionality when adding a new comment or modify an existing one.
+ * There is a server-side validation as well with the same conditionals,
+ * but only for create a new comment.
+ */
 const validate = values => {
   const errors = {}
   if(!values.author){
@@ -19,6 +24,10 @@ const validate = values => {
   return errors
 }
 
+/**
+ * renderField handles errors, warnings and renders form fields
+ * of types input and textarea.
+ */
 const renderField = ({
   input,
   label,
@@ -54,6 +63,10 @@ const renderField = ({
   </FormGroup>
 )
 
+/**
+ * CommentForm component handles modal form of the comment.
+ * We us redux-form to handle form data and validate them.
+ */
 let CommentForm = ({ handleSubmit, comment, modify, loading }) => {
   return (
     <Form onSubmit={handleSubmit} horizontal>

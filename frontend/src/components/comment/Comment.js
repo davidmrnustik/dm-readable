@@ -4,6 +4,9 @@ import VoteScore from '../common/VoteScore';
 import { getDateFromTimeStamp } from '../../util/timestampToDate';
 import { Button, Panel, Row, Col } from 'react-bootstrap';
 
+/**
+ * Comment component renders comment detail on post detail page.
+ */
 const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
   const footer = (
     <Row>

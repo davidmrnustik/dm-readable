@@ -15,6 +15,13 @@ import * as actionTypes from '../../constants';
 import CommentForm from './CommentForm';
 import SortForm from '../common/SortForm';
 
+/**
+ * CommentList component is a container of Comment component.
+ * It contains all comment functionality:
+ * add new/pre-populated modify/remove comment, vote and sort comments.
+ * Create new and delete comment functions call an action to update a related post.
+ * It receives post, posts, categories and ajax calls props.
+ */
 class CommentList extends Component {
   static propTypes = {
     post: PropTypes.object.isRequired,
@@ -203,17 +210,8 @@ class CommentList extends Component {
 }
 
 function mapStateToProps({ comment, comments, posts, ajaxCallsInProgress }, ownProps){
-  const newComment = {
-    id: '',
-    timestamp: 0,
-    body: '',
-    author: '',
-    voteScore: 1,
-    parentId: ownProps.post.id,
-    deleted: false,
-    parentDeleted: false
-  }
-
+  const newComment = Object.assign({}, actionTypes.INITIAL_COMMENT, { parentId: ownProps.post.id });
+  
   return {
     newComment,
     comment: comment || newComment,

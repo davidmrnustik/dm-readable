@@ -2,6 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon } from 'react-bootstrap';
 
+/**
+ * VoteScore component handles voting mechanism.
+ * It is imported into postlist, post and comment.
+ */
 const VoteScore = ({ voteScore, onClickUpvote, onClickDownvote, loading }) => {
   return (
     <div className='post-voteScore'>

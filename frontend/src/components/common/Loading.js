@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 
+/**
+ * LoadingDots component renders text animation when ajax call is in action.
+ */
 class LoadingDots extends Component {
   static propTypes = {
     interval: PropTypes.number,

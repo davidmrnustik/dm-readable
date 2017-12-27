@@ -4,7 +4,12 @@ import PropTypes from 'prop-types';
 import { Field, reduxForm } from 'redux-form';
 import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } from 'react-bootstrap';
 
-const validate = values => {
+/**
+ * Frontend validation functionality when adding a new post or modify an existing one.
+ * There is a server-side validation as well with the same conditionals,
+ * but only for create a new post.
+ */
+ const validate = values => {
   const errors = {}
   if(!values.title){
     errors.title = 'Required'
@@ -27,6 +32,10 @@ const validate = values => {
   return errors
 }
 
+/**
+ * renderField handles errors, warnings and renders form fields
+ * of types input and textarea.
+ */
 const renderField = ({
   input,
   label,
@@ -62,6 +71,10 @@ const renderField = ({
   </FormGroup>
 )
 
+/**
+ * renderField handles errors, warnings and renders form fields
+ * of types select.
+ */
 const renderSelect = ({
   input,
   label,
@@ -93,6 +106,10 @@ const renderSelect = ({
   </FormGroup>
 )
 
+/**
+ * PostForm component handles modal form of the post.
+ * We us redux-form to handle form data and validate them.
+ */
 let PostForm = ({ handleSubmit, categories, post, modify, loading }) => {
   return (
     <Form onSubmit={handleSubmit} horizontal>

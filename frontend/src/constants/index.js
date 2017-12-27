@@ -41,3 +41,26 @@ export const SORT_COMMENT_ITEMS = [
 
 export const BEGIN_AJAX_CALL = 'BEGIN_AJAX_CALL';
 export const AJAX_CALL_ERROR = 'AJAX_CALL_ERROR';
+
+export const INITIAL_POST = {
+  id: '',
+  timestamp: 0,
+  title: '',
+  body: '',
+  author: '',
+  category: '',
+  voteScore: 1,
+  deleted: false,
+  commentCount: 0
+};
+
+export const INITIAL_COMMENT = {
+  id: '',
+  timestamp: 0,
+  body: '',
+  author: '',
+  voteScore: 1,
+  parentId: '',
+  deleted: false,
+  parentDeleted: false
+};

@@ -14,6 +14,14 @@ import PostForm from './PostForm';
 import PostDetail from './PostDetail';
 import * as actionTypes from '../../constants';
 
+/**
+ * Post component is a container of Post detail page
+ * and also renders related comments.
+ * It contains post functionality modify, remove and vote.
+ * It receives post props that is parsed from match params.
+ * It fetches related comments to store by parsing match params.
+ * We call componentWillReceiveProps to populate post when post is loaded directly.
+ */
 class Post extends Component {
   static propTypes = {
     post: PropTypes.any,
