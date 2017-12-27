@@ -4,6 +4,9 @@ import { styles } from './styles';
 
 /**
  * LoadingDots component renders text animation when ajax call is in action.
+ * Mentioned in pluralsight online course:
+ * Cory House - Building Applications with React and Redux in ES6
+ * https://app.pluralsight.com/library/courses/react-redux-react-router-es6
  */
 class LoadingDots extends Component {
   static propTypes = {

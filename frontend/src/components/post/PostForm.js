@@ -8,6 +8,7 @@ import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } fr
  * Frontend validation functionality when adding a new post or modify an existing one.
  * There is a server-side validation as well with the same conditionals,
  * but only for create a new post.
+ * https://redux-form.com/7.2.0/examples/
  */
  const validate = values => {
   const errors = {}
@@ -35,6 +36,7 @@ import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } fr
 /**
  * renderField handles errors, warnings and renders form fields
  * of types input and textarea.
+ * https://redux-form.com/7.2.0/examples/
  */
 const renderField = ({
   input,
@@ -74,6 +76,7 @@ const renderField = ({
 /**
  * renderField handles errors, warnings and renders form fields
  * of types select.
+ * https://stackoverflow.com/questions/39493993/redux-form-v6-show-validation-error-for-select-field
  */
 const renderSelect = ({
   input,
@@ -109,6 +112,7 @@ const renderSelect = ({
 /**
  * PostForm component handles modal form of the post.
  * We us redux-form to handle form data and validate them.
+ * https://redux-form.com/7.2.0/examples/
  */
 let PostForm = ({ handleSubmit, categories, post, modify, loading }) => {
   return (

@@ -38,6 +38,7 @@ const fetchPosts = () => dispatch => {
     .then(data => dispatch(receivePosts(data)))
 };
 
+// https://redux.js.org/docs/advanced/AsyncActions.html
 const shouldFetchPosts = state => {
   const posts = state.posts.length;
 
@@ -50,6 +51,7 @@ const shouldFetchPosts = state => {
   }
 }
 
+// https://redux.js.org/docs/advanced/AsyncActions.html
 export const fetchPostsIfNeeded = () => {
   return (dispatch, getState) => {
     if (shouldFetchPosts(getState())) {
