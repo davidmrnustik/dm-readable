@@ -22,6 +22,7 @@ Readable project consists of categories, posts and comments. Users are able to p
 ## Project improvements beyond a basic version
 
 * Validating forms with redux-form
+* Server-side validation on new post and comment
 * Simulating delay on API Server and handle it in frontend
 * Some UX tweaks - toast alert when upating/removing, loading indicator when fetching/updating forms
 * Basic design with Bootstrap components
