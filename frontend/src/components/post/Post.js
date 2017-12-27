@@ -39,6 +39,11 @@ class Post extends Component {
     Modal.setAppElement('body');
   }
 
+  componentDidMount() {
+    const postID = this.props.match ? this.props.match.params.post_id : null;
+    this.props.actions.comment.fetchComments(this.state.post.id || postID);
+  }
+
   openModifyPostModal = () => {
     this.setState({ modifyPostModal: true });
   }

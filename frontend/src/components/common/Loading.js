@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { styles } from './styles';
 
 class LoadingDots extends Component {
   static propTypes = {
@@ -31,7 +32,7 @@ class LoadingDots extends Component {
       text += '.';
       dots--;
     }
-    return <div style={{ color: '#bbb'}}>{this.props.text}{text}&nbsp;</div>;
+    return <span style={styles.loading}>{this.props.text}{text}&nbsp;</span>;
   }
 }
 
