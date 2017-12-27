@@ -7,8 +7,10 @@ import '../node_modules/toastr/build/toastr.min.css';
 import { Provider } from 'react-redux';
 import { store } from './store/configureStore';
 import { fetchCategories } from './actions/categories';
+import { fetchPostsIfNeeded } from './actions/posts';
 
 store.dispatch(fetchCategories());
+store.dispatch(fetchPostsIfNeeded());
 
 ReactDOM.render(
   <Provider store={store}>

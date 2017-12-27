@@ -22,14 +22,16 @@ class Post extends Component {
   }
 
   state = {
+    post: Object.assign({}, this.props.post),
     modifyPostModal: false,
     saving: false
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(state => ({
-      post: Object.assign({}, state.post, nextProps.post),
-    }))
+    if (this.props.post.id !== nextProps.post.id ||
+      this.props.post.commentCount !== nextProps.post.commentCount) {
+      this.setState({ post: Object.assign({}, nextProps.post )});
+    }
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
@@ -49,7 +51,10 @@ class Post extends Component {
     this.setState({ saving: true });
     this.props.actions.post.modifyPost(post)
       .then(() => {
-        this.setState({ saving: false });
+        this.setState({
+          saving: false,
+          post: Object.assign({}, this.props.post)
+        });
         this.closeModifyPostModal();
         toastr.success('A post has been modified.');
       });
@@ -72,7 +77,10 @@ class Post extends Component {
 
     this.props.actions.post.updatePostVote(post, actionTypes.UPVOTE_POST_SUCCESS)
       .then(() => {
-        this.setState({ saving: false });
+        this.setState({
+          saving: false,
+          post: Object.assign({}, this.props.post)
+        });
       })
   }
 
@@ -82,13 +90,16 @@ class Post extends Component {
 
     this.props.actions.post.updatePostVote(post, actionTypes.DOWNVOTE_POST_SUCCESS)
       .then(() => {
-        this.setState({ saving: false });
+        this.setState({
+          saving: false,
+          post: Object.assign({}, this.props.post)
+        });
       })
   }
 
   render() {
-    const { post, loading } = this.props;
-    const { modifyPostModal, saving } = this.state;
+    const { loading } = this.props;
+    const { post, modifyPostModal, saving } = this.state;
 
     return (
       <div className='container'>
@@ -132,10 +143,22 @@ class Post extends Component {
   }
 }
 
+
+function getPostById(id, posts) {
+  const post = posts.filter(post => post.id === id);
+  if (post.length > 0) return post[0];
+  return null; 
+}
+
 function mapStateToProps({ posts, ajaxCallsInProgress }, ownProps){
   const postID = ownProps.match ? ownProps.match.params.post_id : null;
+  let post = {};
+  
+  if (postID && posts.length > 0) {
+    post = getPostById(postID, posts);
+  }
   return {
-    post: postID && posts.filter(post => post.id === postID).filter(post => !post.deleted)[0],
+    post,
     loading: ajaxCallsInProgress > 0
   }
 }

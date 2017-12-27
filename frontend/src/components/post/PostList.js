@@ -45,10 +45,6 @@ class PostList extends Component {
     Modal.setAppElement('body');
   }
 
-  componentDidMount() {
-    this.props.actions.post.fetchPostsIfNeeded();
-  }
-
   openPostModal = (modify = false) => {
     this.setState({
       postModalOpen: true,
