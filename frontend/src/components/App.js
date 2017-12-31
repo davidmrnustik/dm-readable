@@ -1,11 +1,12 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Header from './common/Header';
 import Home from './Home';
 import Category from './Category';
 import Post from './post/Post';
+import NotFoundPage from './NotFoundPage';
 
 /**
  * ReadableApp handles routes for Header, Home, Category and Post detail,
@@ -15,9 +16,12 @@ const ReadableApp = ({ loading }) => {
   return (
     <div>
       <Header loading={loading} />
-      <Route exact path='/' component={Home} />
-      <Route exact path='/:category' component={Category} />
-      <Route path='/:category/:post_id' component={Post} />
+      <Switch>
+        <Route exact path='/' component={Home} />
+        <Route path='/notfound' component={NotFoundPage} />
+        <Route exact path='/:category' component={Category} />
+        <Route path='/:category/:post_id' component={Post} />
+      </Switch>
     </div>
   )
 };

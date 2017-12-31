@@ -16,7 +16,7 @@ const Header = ({ categories, loading }) => {
       <Navbar collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <Link to='/'>
+            <Link to='/' replace>
               Readable
             </Link>
           </Navbar.Brand>
@@ -24,13 +24,13 @@ const Header = ({ categories, loading }) => {
         </Navbar.Header>
         <Navbar.Collapse>
           <Nav>
-            <LinkContainer exact={true} to='/'>
+            <LinkContainer exact={true} to='/' replace>
               <NavItem eventKey={1}>
                 Home
               </NavItem>
             </LinkContainer>
             {categories.map(category => (
-              <LinkContainer to={`/${category.path}`} key={category.path}>
+              <LinkContainer to={`/${category.path}`} key={category.path} replace>
                 <NavItem eventKey={2}>
                   {category.name}
                 </NavItem>

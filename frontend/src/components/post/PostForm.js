@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { If, Then, Else } from 'react-if';
 import { Field, reduxForm } from 'redux-form';
 import { Form, FormGroup, FormControl, ControlLabel, Col, Button, HelpBlock } from 'react-bootstrap';
 
@@ -52,18 +53,23 @@ const renderField = ({
       {label}
     </Col>
     <Col sm={10}>
-      {type === 'textarea'
-        ? <FormControl
+      
+      <If condition={type === 'textarea'}>
+        <Then>
+          <FormControl
             {...input}
             componentClass="textarea"
             placeholder={label}
           />
-        : <FormControl
+        </Then>
+        <Else>{() => 
+          <FormControl
             {...input}
             placeholder={label}
             type={type}
           />
-      }
+        }</Else>
+      </If>
       <FormControl.Feedback />
         
       {touched &&
@@ -94,9 +100,9 @@ const renderSelect = ({
     </Col>
     <Col sm={10}>
       <FormControl
-          componentClass="select"
-          placeholder="select"
-          {...input}
+        componentClass="select"
+        placeholder="select"
+        {...input}
       >
         {children}
       </FormControl>

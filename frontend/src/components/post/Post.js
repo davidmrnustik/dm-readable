@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Redirect } from 'react-router-dom';
 import toastr from 'toastr';
 import Modal from 'react-modal';
 import { styles } from '../common/styles';
@@ -118,20 +119,30 @@ class Post extends Component {
 
     return (
       <div className='container'>
-        <PostDetail
-          {...post}
-          modify={true}
-          showDetail={true}
-          loading={saving}
-          onClickModify={() => this.openModifyPostModal()}
-          onClickDelete={() => this.onSubmitDeletePost(post)}
-          onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
-          onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
-        />
+        {!post.deleted ? (
+          loading
+            ? <Loading text="Loading post and comments"/> 
+            : <div>
+                <PostDetail
+                  {...post}
+                  modify={true}
+                  showDetail={true}
+                  loading={saving}
+                  onClickModify={() => this.openModifyPostModal()}
+                  onClickDelete={() => this.onSubmitDeletePost(post)}
+                  onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
+                  onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
+                />
+              </div>
+
+        )
+          : <Redirect to="/notfound"/>
+        }
+        
         <hr/>
         
         <CommentList post={post}/>
-
+        
         <Modal
           isOpen={modifyPostModal}
           shouldCloseOnOverlayClick={true}

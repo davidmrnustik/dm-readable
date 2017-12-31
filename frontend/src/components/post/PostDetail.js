@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Loading from '../common/Loading';
 import { Link } from 'react-router-dom';
 import { Panel, Button, Label, Row, Col, Breadcrumb } from 'react-bootstrap';
-import { getDateFromTimeStamp } from '../../util/timestampToDate';
 import { LinkContainer } from 'react-router-bootstrap';
 import VoteScore from '../common/VoteScore';
 

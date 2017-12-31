@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import VoteScore from '../common/VoteScore';
-import { getDateFromTimeStamp } from '../../util/timestampToDate';
+import Moment from 'react-moment';
 import { Button, Panel, Row, Col } from 'react-bootstrap';
 
 /**
@@ -14,7 +14,7 @@ const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDel
         <em>Author: {author}</em>
       </Col>
       <Col xs={6} className='text-right'>
-        <small style={{ color: '#bbb' }}>Published: {getDateFromTimeStamp(timestamp)}</small>
+        <small style={{ color: '#bbb' }}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
       </Col>
     </Row>
   )

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
 import ReadableApp from './components/App';
 import './assets/css/bootstrap.min.css';
 import '../node_modules/toastr/build/toastr.min.css';

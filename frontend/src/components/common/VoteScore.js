@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon } from 'react-bootstrap';
+import { If, Then, Else } from 'react-if';
 
 /**
  * VoteScore component handles voting mechanism.
@@ -11,14 +12,18 @@ const VoteScore = ({ voteScore, onClickUpvote, onClickDownvote, loading }) => {
     <div className='post-voteScore'>
       <ul className='list-inline'>
         <li>
-          {loading
-            ? <Button bsSize='xsmall' disabled>
+          <If condition={loading}>
+            <Then>
+              <Button bsSize='xsmall' disabled>
                 <Glyphicon glyph="minus"/>
               </Button>
-            : <Button bsSize='xsmall' onClick={onClickDownvote} >
+            </Then>
+            <Else>{() => 
+              <Button bsSize='xsmall' onClick={onClickDownvote} >
                 <Glyphicon glyph="minus"/>
               </Button>
-            }
+            }</Else>
+          </If>
         </li>
         <li>
           <h4 style={{ margin: 0 }}>

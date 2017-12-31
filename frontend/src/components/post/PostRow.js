@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Loading from '../common/Loading';
 import { Link } from 'react-router-dom';
+import { If, Then, Else } from 'react-if';
 import { Panel, Button, Label, Row, Col } from 'react-bootstrap';
-import { getDateFromTimeStamp } from '../../util/timestampToDate';
 import VoteScore from '../common/VoteScore';
+import Moment from 'react-moment';
 
 /**
  * PostRow component renders post detail on post list type pages.
@@ -20,7 +21,7 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
         <Label>{category}</Label>
       </Col>
       <Col sm={4} xs={12} className='text-right'>
-        <small style={{ color: '#bbb' }}>Published: {getDateFromTimeStamp(timestamp)}</small>
+        <small style={{ color: '#bbb' }}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
       </Col>
     </Row>
   )
@@ -39,9 +40,14 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
               />
             </li>
             <li>
-              {commentCount === 0
-                ? 'No comments yet.'
-                : commentCount > 1 ? `Comments: ${commentCount}` : `Comment: ${commentCount}`}
+              <If condition={commentCount === 0}>
+                <Then>
+                  'No comments yet.'
+                </Then>
+                <Else>{() => 
+                  commentCount > 1 ? `Comments: ${commentCount}` : `Comment: ${commentCount}`
+                }</Else>
+              </If>
             </li>
           </ul>
         </Col>

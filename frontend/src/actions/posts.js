@@ -69,6 +69,12 @@ export const fetchPost = (post, method) => dispatch => {
     .then(data => method === 'fetch' ? dispatch(receivePost(data)) : dispatch(updatePost(data)))
 };
 
+export const postIsValid = post => dispatch => {
+  return APIUtil
+    .fetchData(`posts/${post.id}`)
+    .then(data => dispatch(receivePost(data)))
+};
+
 export const modifyPost = post => {
   const updatedPost = Object.assign({}, post, {
     timestamp: +new Date()

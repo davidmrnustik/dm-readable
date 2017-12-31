@@ -65,7 +65,7 @@ module.exports = {
     }),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new ExtractTextPlugin({
-      filename: '[name].[chunkhash:8].css'
+      filename: '[name].css'
     }),
     new webpack.DefinePlugin(env),
     new webpack.optimize.UglifyJsPlugin({

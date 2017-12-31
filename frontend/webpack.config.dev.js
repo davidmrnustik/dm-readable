@@ -19,9 +19,7 @@ if(process.argv.length > 2){
 var env = getClientEnvironment(publicUrl, argvOptions);
 
 module.exports = {
-  entry: {
-    app: [path.resolve(__dirname, 'src/index.js')]
-  },
+  entry: [path.resolve(__dirname, 'src/index.js')],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build'),
