@@ -42,7 +42,7 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
             <li>
               <If condition={commentCount === 0}>
                 <Then>
-                  'No comments yet.'
+                  No comments yet.
                 </Then>
                 <Else>{() => 
                   commentCount > 1 ? `Comments: ${commentCount}` : `Comment: ${commentCount}`
