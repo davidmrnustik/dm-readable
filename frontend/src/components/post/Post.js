@@ -141,7 +141,9 @@ class Post extends Component {
     const { loading } = this.props;
     const { post, modifyPostModal, deletePostModal, saving } = this.state;
 
-    if (typeof post === undefined || this.postIsEmpty(post)) return <Redirect to="/notfound"/>;
+    if (!loading && (typeof post === undefined || this.postIsEmpty(post))) {
+      return <Redirect to="/notfound"/>;
+    }
 
     return (
       <div className='container'>
