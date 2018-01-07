@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon } from 'react-bootstrap';
 import { If, Then, Else } from 'react-if';
+import { styles } from './styles';
 
 /**
  * VoteScore component handles voting mechanism.
@@ -26,8 +27,8 @@ const VoteScore = ({ voteScore, onClickUpvote, onClickDownvote, loading }) => {
           </If>
         </li>
         <li>
-          <h4 style={{ margin: 0 }}>
-            {loading ? <span style={{ color: 'gray' }}>{voteScore}</span> : voteScore}
+          <h4 style={styles.removeMargin}>
+            {loading ? <span style={styles.colorGray}>{voteScore}</span> : voteScore}
           </h4>
         </li>
         <li>

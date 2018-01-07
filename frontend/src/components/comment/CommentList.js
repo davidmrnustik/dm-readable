@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
-import Modal from 'react-modal';
+import MyModal from '../common/MyModal';
 import sortBy from 'sort-by';
 import toastr from 'toastr';
 import { Row, Col, Button, PageHeader, Glyphicon } from 'react-bootstrap';
-import { styles } from '../common/styles';
+import { styles, customModal } from '../common/styles';
 import Comment from './Comment';
 import Loading from '../common/Loading';
 import { fetchPost } from '../../actions/posts';
@@ -34,26 +34,29 @@ class CommentList extends Component {
   state = {
     modify: false,
     commentModal: false,
+    deleteCommentModal: false,
     sort: actionTypes.SORT_COMMENT_DEFAULT,
-    saving: false
+    saving: false,
+    selectedComment: {}
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
   componentWillMount() {
-    Modal.setAppElement('body');
+    // Modal.setAppElement('body');
   }
 
-  openCommentModal = (modify = false) => {
+  openCommentModal = (modal, modify = false) => {
     this.setState({
-      commentModal: true,
+      [modal]: true,
       modify
     })
   }
 
-  closeCommentModal = () => {
+  closeCommentModal = modal => {
     this.setState(() => ({
-      commentModal: false,
-      modify: false
+      [modal]: false,
+      modify: false,
+      selectedComment: {}
     }))
   }
 
@@ -63,13 +66,13 @@ class CommentList extends Component {
       .then(() => {
         this.props.updatePost(this.props.post);
         this.setState({ saving: false })
-        this.closeCommentModal();
+        this.closeCommentModal('commentModal');
         toastr.success('A new comment has been added.');
       })
       .catch(error => {
         toastr.error(error)
         this.setState({ saving: false });
-        this.closeCommentModal();
+        this.closeCommentModal('commentModal');
       })
   }
 
@@ -81,30 +84,34 @@ class CommentList extends Component {
           modify: false,
           saving: false
         })
-        this.closeCommentModal();
+        this.closeCommentModal('commentModal');
         toastr.success('A comment has been modified.');
       })
   }
 
-  onSubmitDeleteComment = comment => {
-    let deleteComment = confirm('Are you sure?');
-
-    if (deleteComment) {
-      this.props.actions.removeComment(comment)
-        .then(() => {
-          this.props.updatePost(this.props.post);
-          toastr.success('A comment has been removed.');
-        })
-    }
+  onSubmitDeleteComment = () => {
+    this.setState({ saving: true });
+    this.props.actions.removeComment(this.state.selectedComment)
+      .then(() => {
+        this.props.updatePost(this.props.post);
+        this.setState({ saving: false, selectedComment: {} });
+        this.closeCommentModal('deleteCommentModal');
+        toastr.success('A comment has been removed.');
+      })
   }
 
   onSubmitComment = comment => {
     this.state.modify ? this.onSubmitModifyComment(comment) : this.onSubmitNewComment(comment);
   }
 
-  onClickModify = comment => {
-    this.openCommentModal(true);
+  onClickModifyComment = comment => {
+    this.openCommentModal('commentModal', true);
     this.props.actions.fetchComment(comment);
+  }
+
+  onClickDeleteComment = comment => {
+    this.setState({ selectedComment: comment });
+    this.openCommentModal('deleteCommentModal');
   }
 
   onClickUpvoteComment = (event, comment) => {
@@ -132,20 +139,20 @@ class CommentList extends Component {
   }
 
   render() {
-    const { commentModal, modify, sort, saving } = this.state;
-    const { comment, comments, newComment, loading, post } = this.props;
+    const { commentModal, modify, sort, saving, deleteCommentModal } = this.state;
+    const { comment, comments, newComment, loading, post: { commentCount} } = this.props;
     let sortedComments = Object.assign([], comments, comments.sort(sortBy(sort, 'voteScore', 'author')));
 
     return (
       <div className='comments'>
         <Row>
           <Col sm={6}>
-            <h4 style={{ margin: '0 0 20px 0' }}>
-              Comments {loading ? <Loading text=''/> : `(${post.commentCount})`}
+            <h4 style={styles.marginBottom}>
+              Comments {loading ? <Loading text=''/> : `(${commentCount})`}
               { ' ' }
               <Button
                 bsStyle='primary'
-                onClick={() => this.openCommentModal()}
+                onClick={() => this.openCommentModal('commentModal')}
                 bsSize='small'
               >
                 Add New Comment
@@ -171,8 +178,8 @@ class CommentList extends Component {
                   key={comment.id}
                   {...comment}
                   loading={saving}
-                  onClickModify={() => this.onClickModify(comment)}
-                  onClickDelete={() => this.onSubmitDeleteComment(comment)}
+                  onClickModify={() => this.onClickModifyComment(comment)}
+                  onClickDelete={() => this.onClickDeleteComment(comment)}
                   onClickUpvoteComment={(e) => this.onClickUpvoteComment(e, comment)}
                   onClickDownvoteComment={(e) => this.onClickDownvoteComment(e, comment)}
                 />
@@ -181,11 +188,10 @@ class CommentList extends Component {
           }
         </div>
 
-        <Modal
+        <MyModal
           isOpen={commentModal}
-          shouldCloseOnOverlayClick={true}
-          onRequestClose={this.closeCommentModal}
-          shouldCloseOnEsc={true}>
+          onRequestClose={() => this.closeCommentModal('commentModal')}
+          >
 
           <PageHeader>{modify ? 'Modify Comment' : 'Add new Comment'}</PageHeader>
           
@@ -200,10 +206,40 @@ class CommentList extends Component {
 
           <Glyphicon
             glyph='remove'
-            onClick={() => this.closeCommentModal()}
+            onClick={() => this.closeCommentModal('commentModal')}
             style={styles.modalClose}
           />
-        </Modal>
+        </MyModal>
+
+        <MyModal
+          isOpen={deleteCommentModal}
+          onRequestClose={() => this.closeCommentModal('deleteCommentModal')}
+          style={customModal}
+        >
+          <h4 style={styles.marginBottom}>Are you sure?</h4>
+          {saving ? <Loading/> :
+            <p>
+              <Button
+                bsStyle='primary'
+                onClick={() => this.onSubmitDeleteComment()}
+              >
+                Yes
+              </Button>
+              {' '}
+              <Button
+                onClick={() => this.closeCommentModal('deleteCommentModal')}
+              >
+                No
+              </Button>
+            </p>
+          }
+
+          <Glyphicon
+            glyph='remove'
+            onClick={() => this.closeCommentModal('deleteCommentModal')}
+            style={styles.modalClose}
+          />
+        </MyModal>
       </div>
     )
   }

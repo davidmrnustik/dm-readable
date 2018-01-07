@@ -3,25 +3,35 @@ import PropTypes from 'prop-types';
 import VoteScore from '../common/VoteScore';
 import Moment from 'react-moment';
 import { Button, Panel, Row, Col } from 'react-bootstrap';
+import { styles } from '../common/styles';
 
 /**
  * Comment component renders comment detail on post detail page.
  */
-const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDelete, onClickUpvoteComment, onClickDownvoteComment, loading }) => {
+const Comment = ({
+  author,
+  timestamp,
+  voteScore,
+  body,
+  onClickModify,
+  onClickDelete,
+  onClickUpvoteComment,
+  onClickDownvoteComment,
+  loading }) => {
   const footer = (
     <Row>
       <Col xs={6}>
         <em>Author: {author}</em>
       </Col>
       <Col xs={6} className='text-right'>
-        <small style={{ color: '#bbb' }}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
+        <small style={styles.publishedDate}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
       </Col>
     </Row>
   )
   return (
     <div className='comment-detail'>
       <Panel footer={footer}>
-        <p style={{ marginBottom: 20 }}>{body}</p>
+        <p style={styles.commentBody}>{body}</p>
         <Row>
           <Col xs={6}>
             <VoteScore
@@ -42,7 +52,6 @@ const Comment = ({ author, timestamp, voteScore, body, onClickModify, onClickDel
               </Button>
               {' '}
               <Button
-                bsStyle='primary'
                 onClick={onClickDelete}
                 bsSize='small'
               >

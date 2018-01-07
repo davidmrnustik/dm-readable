@@ -21,9 +21,9 @@ class LoadingDots extends Component {
 
   componentDidMount() {
     this.interval = setInterval(() => {
-      this.setState({
-        frame: this.state.frame + 1
-      });
+      this.setState(prevState => ({
+        frame: prevState.frame + 1
+      }));
     }, this.props.interval);
   }
 

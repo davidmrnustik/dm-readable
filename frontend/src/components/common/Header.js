@@ -29,13 +29,16 @@ const Header = ({ categories, loading }) => {
                 Home
               </NavItem>
             </LinkContainer>
-            {categories.map(category => (
-              <LinkContainer to={`/${category.path}`} key={category.path} replace>
-                <NavItem eventKey={2}>
-                  {category.name}
-                </NavItem>
-              </LinkContainer>
-            ))}
+            {categories.map(category => {
+              const { name, path } = category;
+              return (
+                <LinkContainer to={`/${path}`} key={path} replace>
+                  <NavItem eventKey={2}>
+                    {name}
+                  </NavItem>
+                </LinkContainer>
+              )
+            })}
           </Nav>
         </Navbar.Collapse>
       </Navbar>

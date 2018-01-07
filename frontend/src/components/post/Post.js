@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
 import toastr from 'toastr';
 import Modal from 'react-modal';
-import { styles } from '../common/styles';
+import { styles, customModal } from '../common/styles';
 import { Button, Row, Col, PageHeader, Glyphicon } from 'react-bootstrap';
 import CommentList from '../comment/CommentList';
 import Loading from '../common/Loading';
@@ -14,6 +14,7 @@ import * as commentActions from '../../actions/comments';
 import PostForm from './PostForm';
 import PostDetail from './PostDetail';
 import * as actionTypes from '../../constants';
+import MyModal from '../common/MyModal';
 
 /**
  * Post component is a container of Post detail page
@@ -33,14 +34,23 @@ class Post extends Component {
   state = {
     post: Object.assign({}, this.props.post),
     modifyPostModal: false,
-    saving: false
+    deletePostModal: false,
+    saving: false,
+    selectedPost: {}
   }
 
   componentWillReceiveProps(nextProps) {
-    // Necessary to populate post when existing post is loaded directly.
-    if (this.props.post.id !== nextProps.post.id ||
-      this.props.post.commentCount !== nextProps.post.commentCount) {
-      this.setState({ post: Object.assign({}, nextProps.post )});
+    const post = this.props.post;
+
+    if (nextProps.post !== null) {
+      if (post.id !== nextProps.post.id ||
+        post.commentCount !== nextProps.post.commentCount) {
+
+        // Necessary to populate post when existing post is loaded directly.
+        this.setState({ post: Object.assign({}, nextProps.post )});
+      }
+    } else {
+      this.props.history.push('/notfound');
     }
   }
 
@@ -55,12 +65,12 @@ class Post extends Component {
     this.props.actions.comment.fetchComments(this.state.post.id || postID);
   }
 
-  openModifyPostModal = () => {
-    this.setState({ modifyPostModal: true });
+  openModifyPostModal = modal => {
+    this.setState({ [modal]: true });
   }
 
-  closeModifyPostModal = () => {
-    this.setState({ modifyPostModal: false });
+  closeModifyPostModal = modal => {
+    this.setState({ [modal]: false });
   }
 
   onSubmitModifyPost = post => {
@@ -71,20 +81,28 @@ class Post extends Component {
           saving: false,
           post: Object.assign({}, this.props.post)
         });
-        this.closeModifyPostModal();
+        this.closeModifyPostModal('modifyPostModal');
         toastr.success('A post has been modified.');
       });
   }
 
-  onSubmitDeletePost = post => {
-    let deletePost = confirm('Are you sure?');
+  onSubmitDeletePost = () => {
+    const post = this.state.selectedPost;
 
-    if (deletePost) {
-      this.props.actions.post.removePost(post)
-        .then(() => toastr.success('A post has been removed.'))
-      this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
-      this.props.history.push('/');
-    }
+    this.setState({ saving: true });
+    this.props.actions.post.removePost(post)
+      .then(() => {
+        this.setState({ saving: false, selectedPost: {} });
+        this.closeModifyPostModal('deletePostModal');
+        toastr.success('A post has been removed.');
+        this.props.history.push('/');
+      })
+    this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
+  }
+
+  onClickDelete = post => {
+    this.setState({ selectedPost: post });
+    this.openModifyPostModal('deletePostModal');
   }
 
   onClickUpvotePost = (event, post) => {
@@ -113,9 +131,17 @@ class Post extends Component {
       })
   }
 
+  postIsEmpty(post) {
+    if (Object.keys(post).length === 0) {
+      return true;
+    }
+  }
+
   render() {
     const { loading } = this.props;
-    const { post, modifyPostModal, saving } = this.state;
+    const { post, modifyPostModal, deletePostModal, saving } = this.state;
+
+    if (typeof post === undefined || this.postIsEmpty(post)) return <Redirect to="/notfound"/>;
 
     return (
       <div className='container'>
@@ -128,8 +154,8 @@ class Post extends Component {
                   modify={true}
                   showDetail={true}
                   loading={saving}
-                  onClickModify={() => this.openModifyPostModal()}
-                  onClickDelete={() => this.onSubmitDeletePost(post)}
+                  onClickModify={() => this.openModifyPostModal('modifyPostModal')}
+                  onClickDelete={() => this.onClickDelete(post)}
                   onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
                   onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
                 />
@@ -142,12 +168,10 @@ class Post extends Component {
         <hr/>
         
         <CommentList post={post}/>
-        
-        <Modal
+
+        <MyModal
           isOpen={modifyPostModal}
-          shouldCloseOnOverlayClick={true}
-          onRequestClose={this.closeModifyPostModal}
-          shouldCloseOnEsc={true}>
+          onRequestClose={() => this.closeModifyPostModal('modifyPostModal')}>
           
           <PageHeader>Modify Post</PageHeader>
 
@@ -160,10 +184,40 @@ class Post extends Component {
           
           <Glyphicon
             glyph='remove'
-            onClick={() => this.closeModifyPostModal()}
+            onClick={() => this.closeModifyPostModal('modifyPostModal')}
             style={styles.modalClose}
           />
-        </Modal>
+        </MyModal>
+
+        <MyModal
+          isOpen={deletePostModal}
+          onRequestClose={() => this.closeModifyPostModal('deletePostModal')}
+          style={customModal}
+        >
+          <h4 style={styles.marginBottom}>Are you sure?</h4>
+          {saving ? <Loading/> :
+            <p>
+              <Button
+                bsStyle='primary'
+                onClick={() => this.onSubmitDeletePost()}
+              >
+                Yes
+              </Button>
+              {' '}
+              <Button
+                onClick={() => this.closeModifyPostModal('deletePostModal')}
+              >
+                No
+              </Button>
+            </p>
+          }
+
+          <Glyphicon
+            glyph='remove'
+            onClick={() => this.closeModifyPostModal('deletePostModal')}
+            style={styles.modalClose}
+          />
+        </MyModal>
       </div>
     )
   }

@@ -7,7 +7,7 @@ import toastr from 'toastr';
 import Modal from 'react-modal';
 import sortBy from 'sort-by';
 import { Button, Row, Col, PageHeader, Glyphicon } from 'react-bootstrap';
-import { styles } from '../common/styles';
+import { styles, customModal } from '../common/styles';
 import * as postActions from '../../actions/posts';
 import Loading from '../common/Loading';
 import * as commentActions from '../../actions/comments';
@@ -15,6 +15,7 @@ import PostForm from './PostForm';
 import PostRow from './PostRow';
 import * as actionTypes from '../../constants';
 import SortForm from '../common/SortForm';
+import MyModal from '../common/MyModal';
 
 /**
  * PostList component is a container of PostRow component.
@@ -34,9 +35,11 @@ class PostList extends Component {
 
   state = {
     postModalOpen: false,
+    deletePostModal: false,
     modify: false,
     sort: actionTypes.SORT_POST_DEFAULT,
-    saving: false
+    saving: false,
+    selectedPost: {}
   }
 
   // Added setAppElement method to solve: https://github.com/reactjs/react-modal/issues/133
@@ -44,17 +47,18 @@ class PostList extends Component {
     Modal.setAppElement('body');
   }
 
-  openPostModal = (modify = false) => {
+  openPostModal = (modal, modify = false) => {
     this.setState({
-      postModalOpen: true,
+      [modal]: true,
       modify
     })
   }
 
-  closePostModal = () => {
+  closePostModal = modal => {
     this.setState({
-      postModalOpen: false,
-      modify: false
+      [modal]: false,
+      modify: false,
+      selectedPost: {}
     })
   }
 
@@ -68,13 +72,13 @@ class PostList extends Component {
     this.props.actions.post.savePost(post)
       .then(() => {
         this.setState({ saving: false });
-        this.closePostModal();
+        this.closePostModal('postModalOpen');
         toastr.success('A new post has been created.');
       })
       .catch(error => {
         toastr.error(error)
         this.setState({ saving: false });
-        this.closePostModal();
+        this.closePostModal('postModalOpen');
       })
   }
 
@@ -87,24 +91,32 @@ class PostList extends Component {
           modify: false,
           saving: false
         });
-        this.closePostModal();
+        this.closePostModal('postModalOpen');
         toastr.success('A post has been modified.');
       });
   }
 
-  onSubmitDeletePost = post => {
-    let deletePost = confirm('Are you sure?');
-
-    if (deletePost) {
-      this.props.actions.post.removePost(post)
-        .then(() => toastr.success('A post has been removed.'));
-      this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
-    }
+  onSubmitDeletePost = () => {
+    const post = this.state.selectedPost;
+    
+    this.setState({ saving: true });
+    this.props.actions.post.removePost(post)
+      .then(() => {
+        this.setState({ saving: false, selectedPost: {} });
+        this.closePostModal('deletePostModal');
+        toastr.success('A post has been removed.');
+      })
+    this.props.actions.comment.fetchPostCommentAndRemoveIt(post.id);
   }
 
   onClickModify = post => {
-    this.openPostModal(true);
+    this.openPostModal('postModalOpen', true);
     this.props.actions.post.fetchPost(post, 'fetch');
+  }
+
+  onClickDelete = post => {
+    this.setState({ selectedPost: post });
+    this.openPostModal('deletePostModal');
   }
 
   onClickUpvotePost = (event, post) => {
@@ -135,7 +147,7 @@ class PostList extends Component {
 
   render() {
     const { posts, categories, loading, match, post, newPost } = this.props;
-    const { postModalOpen, modify, sort, saving } = this.state;
+    const { postModalOpen, deletePostModal, modify, sort, saving } = this.state;
     let noPostMessage;
     let sortedPosts = Object.assign([], posts, posts.sort(sortBy(sort, 'voteScore', 'title')));
 
@@ -147,13 +159,13 @@ class PostList extends Component {
 
     return (
       <div className='post-list'>
-        <Button bsStyle='primary' onClick={() => this.openPostModal()}>Add New Post</Button>
+        <Button bsStyle='primary' onClick={() => this.openPostModal('postModalOpen')}>Add New Post</Button>
 
         <hr/>
         
         <Row>
           <Col sm={6}>
-            <h3 style={{ margin: '0 0 20px 0' }}>Posts</h3>
+            <h3 style={styles.marginBottom}>Posts</h3>
           </Col>
           {posts.length > 1 && (
             <Col sm={6} className='text-right'>
@@ -173,7 +185,7 @@ class PostList extends Component {
             modify={modify}
             loading={saving}
             onClickModify={() => this.onClickModify(post)}
-            onClickDelete={() => this.onSubmitDeletePost(post)}
+            onClickDelete={() => this.onClickDelete(post)}
             onClickUpvotePost={(e) => this.onClickUpvotePost(e, post)}
             onClickDownvotePost={(e) => this.onClickDownvotePost(e, post)}
           />
@@ -181,11 +193,9 @@ class PostList extends Component {
 
         {loading ? <Loading/> : sortedPosts.length === 0 && noPostMessage}
         
-        <Modal
+        <MyModal
           isOpen={postModalOpen}
-          shouldCloseOnOverlayClick={true}
-          onRequestClose={this.closePostModal}
-          shouldCloseOnEsc={true}>
+          onRequestClose={() => this.closePostModal('postModalOpen')}>
 
           <PageHeader>{modify ? 'Modify Post' : 'Add new Post'}</PageHeader>
           
@@ -201,10 +211,40 @@ class PostList extends Component {
 
           <Glyphicon
             glyph='remove'
-            onClick={() => this.closePostModal()}
+            onClick={() => this.closePostModal('postModalOpen')}
             style={styles.modalClose}
           />
-        </Modal>
+        </MyModal>
+
+        <MyModal
+          isOpen={deletePostModal}
+          onRequestClose={() => this.closePostModal('deletePostModal')}
+          style={customModal}
+        >
+          <h4 style={styles.marginBottom}>Are you sure?</h4>
+          {saving ? <Loading/> :
+            <p>
+              <Button
+                bsStyle='primary'
+                onClick={() => this.onSubmitDeletePost()}
+              >
+                Yes
+              </Button>
+              {' '}
+              <Button
+                onClick={() => this.closePostModal('deletePostModal')}
+              >
+                No
+              </Button>
+            </p>
+          }
+
+          <Glyphicon
+            glyph='remove'
+            onClick={() => this.closePostModal('deletePostModal')}
+            style={styles.modalClose}
+          />
+        </MyModal>
       </div>
     )  
   }

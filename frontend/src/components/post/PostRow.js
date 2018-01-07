@@ -6,6 +6,7 @@ import { If, Then, Else } from 'react-if';
 import { Panel, Button, Label, Row, Col } from 'react-bootstrap';
 import VoteScore from '../common/VoteScore';
 import Moment from 'react-moment';
+import { styles } from '../common/styles';
 
 /**
  * PostRow component renders post detail on post list type pages.
@@ -21,7 +22,7 @@ const PostRow = ({ timestamp, id, title, author, category, commentCount, voteSco
         <Label>{category}</Label>
       </Col>
       <Col sm={4} xs={12} className='text-right'>
-        <small style={{ color: '#bbb' }}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
+        <small style={styles.colorGray}>Published: <Moment format="DD MMMM YYYY">{timestamp}</Moment></small>
       </Col>
     </Row>
   )
